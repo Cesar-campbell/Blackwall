@@ -1,0 +1,21 @@
+$ curl -s …/protocol/openid-connect/certs
+{
+  "keys": [
+    {
+      "kid": "7ijHkc1E6eNBS-wu-NfYnb0E_c6qHGQgbazPWRADt80",
+      "kty": "RSA",
+      "alg": "RS256",
+      "use": "sig",
+      "n": "ip0Al0hH_jzzgB_APvDohFwrHVpf\u2026",
+      "e": "AQAB"
+    },
+    {
+      "kid": "OYv8SP6cNNvaUMsaXNd4J_7KeI7EWnTYLcdHhkRZWRc",
+      "kty": "RSA",
+      "alg": "RSA-OAEP",
+      "use": "enc",
+      "n": "64svglXIlK7zcvy4S0o-wcWZLCYX\u2026",
+      "e": "AQAB"
+    }
+  ]
+}

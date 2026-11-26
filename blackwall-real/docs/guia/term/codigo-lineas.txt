@@ -1,0 +1,24 @@
+$ wc -l (código propio)
+482 app/src/Api.php
+25 app/src/Config.php
+77 app/src/Db.php
+53 app/src/Http.php
+120 app/src/Keycloak.php
+187 app/src/Ldap.php
+112 app/src/Oidc.php
+35 app/src/Sesion.php
+98 app/src/Tokens.php
+156 app/public/index.php
+243 app/public/assets/app.js
+39 app/public/vista.html
+384 keycloak/configurar.py
+26 scripts/bw.sh
+78 scripts/captura.sh
+187 scripts/preparar.sh
+561 pruebas/casos_prueba.py
+235 pruebas/oidc_cliente.py
+110 pruebas/zap_escaneo.py
+55 pruebas/kc_consola.cjs
+70 pruebas/ui_capturas.cjs
+132 docker-compose.yml
+3465 total

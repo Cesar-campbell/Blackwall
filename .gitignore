@@ -1,0 +1,13 @@
+# Secretos, certificados y datos: viven fuera del repositorio ($HOME/.local/share/blackwall)
+.env
+*.env
+*.key
+*.pem
+certs/
+datos/
+tunel-fijo.env
+app/vendor/
+node_modules/
+__pycache__/
+*.pyc
+docs/guia/guia.html

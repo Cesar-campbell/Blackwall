@@ -1,0 +1,7 @@
+$ docker --version; docker compose version; cat /etc/os-release | grep PRETTY_NAME
+Docker version 29.7.2, build 1.fc44
+Docker Compose version v5.6.0
+PRETTY_NAME="Nobara Linux 44 (KDE Plasma Desktop Edition)"
+PHP 8.5.11 (cli) (built: Sep 22 2026 13:32:06) (NTS gcc x86_64)
+Python 3.14.7
+v22.23.1

@@ -1,0 +1,35 @@
+$ tshark -r login-https.pcap -c 28   (captura del login real, tráfico hacia Keycloak)
+    1   0.000000   172.19.0.1 → 172.19.0.4   TCP 74 54492 → 8443 [SYN] Seq=0 Win=64240 Len=0 MSS=1460 SACK_PERM TSval=3576702158 TSecr=
+    2   0.000013   172.19.0.4 → 172.19.0.1   TCP 74 8443 → 54492 [SYN, ACK] Seq=0 Ack=1 Win=65160 Len=0 MSS=1460 SACK_PERM TSval=373113
+    3   0.000022   172.19.0.1 → 172.19.0.4   TCP 66 54492 → 8443 [ACK] Seq=1 Ack=1 Win=64512 Len=0 TSval=3576702158 TSecr=373113796
+    4   0.000089   172.19.0.1 → 172.19.0.4   TLSv1.2 1628 Client Hello (SNI=acceso.localhost)
+    5   0.000096   172.19.0.4 → 172.19.0.1   TCP 66 8443 → 54492 [ACK] Seq=1 Ack=1563 Win=67584 Len=0 TSval=373113796 TSecr=3576702158
+    6   0.003263   172.19.0.4 → 172.19.0.1   TLSv1.3 1803 Server Hello, Change Cipher Spec, Application Data
+    7   0.003300   172.19.0.1 → 172.19.0.4   TCP 66 54492 → 8443 [ACK] Seq=1563 Ack=1738 Win=67584 Len=0 TSval=3576702161 TSecr=3731137
+    8   0.003887   172.19.0.1 → 172.19.0.4   TLSv1.3 616 Change Cipher Spec, Application Data, Application Data
+    9   0.005004   172.19.0.4 → 172.19.0.1   TLSv1.3 1586 Application Data
+   10   0.005024   172.19.0.1 → 172.19.0.4   TCP 66 54492 → 8443 [ACK] Seq=2113 Ack=3258 Win=70656 Len=0 TSval=3576702163 TSecr=3731138
+   11   0.012002   172.19.0.4 → 172.19.0.1   TLSv1.3 7306 
+   12   0.012040   172.19.0.1 → 172.19.0.4   TCP 66 54492 → 8443 [ACK] Seq=2113 Ack=10498 Win=78848 Len=0 TSval=3576702170 TSecr=373113
+   13   0.012046   172.19.0.4 → 172.19.0.1   TLSv1.3 2330 Application Data
+   14   0.012071   172.19.0.1 → 172.19.0.4   TCP 66 54492 → 8443 [ACK] Seq=2113 Ack=12762 Win=78848 Len=0 TSval=3576702170 TSecr=373113
+   15   0.012267   172.19.0.4 → 172.19.0.1   TLSv1.3 106 Application Data
+   16   0.012337   172.19.0.4 → 172.19.0.1   TCP 66 8443 → 54492 [FIN, ACK] Seq=12802 Ack=2113 Win=70656 Len=0 TSval=373113808 TSecr=35
+   17   0.012565   172.19.0.1 → 172.19.0.4   TCP 66 54492 → 8443 [FIN, ACK] Seq=2113 Ack=12803 Win=78848 Len=0 TSval=3576702170 TSecr=3
+   18   0.012568   172.19.0.4 → 172.19.0.1   TCP 66 8443 → 54492 [ACK] Seq=12803 Ack=2114 Win=70656 Len=0 TSval=373113808 TSecr=3576702
+   19   0.013184   172.19.0.1 → 172.19.0.4   TCP 74 54508 → 8443 [SYN] Seq=0 Win=64240 Len=0 MSS=1460 SACK_PERM TSval=1811173487 TSecr=
+   20   0.013194   172.19.0.4 → 172.19.0.1   TCP 74 8443 → 54508 [SYN, ACK] Seq=0 Ack=1 Win=65160 Len=0 MSS=1460 SACK_PERM TSval=300891
+   21   0.013200   172.19.0.1 → 172.19.0.4   TCP 66 54508 → 8443 [ACK] Seq=1 Ack=1 Win=64512 Len=0 TSval=1811173487 TSecr=3008917124
+   22   0.013287   172.19.0.1 → 172.19.0.4   TLSv1.2 1628 Client Hello (SNI=acceso.localhost)
+   23   0.013292   172.19.0.4 → 172.19.0.1   TCP 66 8443 → 54508 [ACK] Seq=1 Ack=1563 Win=67584 Len=0 TSval=3008917124 TSecr=1811173487
+   24   0.017939   172.19.0.4 → 172.19.0.1   TLSv1.3 1803 Server Hello, Change Cipher Spec, Application Data
+   25   0.017985   172.19.0.1 → 172.19.0.4   TCP 66 54508 → 8443 [ACK] Seq=1563 Ack=1738 Win=67584 Len=0 TSval=1811173492 TSecr=3008917
+   26   0.018525   172.19.0.1 → 172.19.0.4   TLSv1.3 146 Change Cipher Spec, Application Data
+   27   0.018548   172.19.0.1 → 172.19.0.4   TLSv1.3 2100 Application Data
+   28   0.018552   172.19.0.4 → 172.19.0.1   TCP 66 8443 → 54508 [ACK] Seq=1738 Ack=3677 Win=71680 Len=0 TSval=3008917129 TSecr=1811173
+
+$ tshark -r login-https.pcap -Y "tls.handshake.type==1" -T fields -e ip.src -e tls.handshake.extensions_server_name
+172.19.0.1	acceso.localhost
+172.19.0.1	acceso.localhost
+172.19.0.5	acceso.localhost
+172.19.0.5	acceso.localhost

@@ -1,0 +1,9 @@
+# Secretos y datos generados: viven en $BW_HOME (fuera del repo), pero por si acaso
+.env
+*.env
+*.key
+*.pem
+certs/
+datos/
+app/vendor/
+__pycache__/

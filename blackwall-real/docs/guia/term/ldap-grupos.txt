@@ -1,0 +1,18 @@
+$ ldapsearch -H ldaps://… -b dc=blackwall,dc=utp '(objectClass=groupOfNames)' cn member
+dn: cn=GRP_TI_ADMIN,ou=ti,dc=blackwall,dc=utp
+cn: GRP_TI_ADMIN
+member: uid=campbell.cesar,ou=ti,dc=blackwall,dc=utp
+dn: cn=GRP_SOC_ANALISTA,ou=soc,dc=blackwall,dc=utp
+cn: GRP_SOC_ANALISTA
+member: uid=cruz.irvin,ou=soc,dc=blackwall,dc=utp
+member: uid=pinto.nicole,ou=soc,dc=blackwall,dc=utp
+dn: cn=GRP_CUM_AUDITOR,ou=cum,dc=blackwall,dc=utp
+cn: GRP_CUM_AUDITOR
+member: uid=galvez.angel,ou=cum,dc=blackwall,dc=utp
+dn: cn=GRP_USR_USUARIO,ou=usr,dc=blackwall,dc=utp
+cn: GRP_USR_USUARIO
+member: uid=ejemplo.usuario,ou=usr,dc=blackwall,dc=utp
+member: uid=ejemplo.usuario2,ou=usr,dc=blackwall,dc=utp
+dn: cn=GRP_PUB_INVITADO,ou=pub,dc=blackwall,dc=utp
+cn: GRP_PUB_INVITADO
+member: uid=cordero.moises,ou=pub,dc=blackwall,dc=utp

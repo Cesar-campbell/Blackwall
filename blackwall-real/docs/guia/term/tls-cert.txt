@@ -1,0 +1,11 @@
+$ openssl x509 -in keycloak.crt -noout -subject -issuer -dates -ext subjectAltName,keyUsage,extendedKeyUsage
+subject=C=PA, O=UTP Blackwall Lab, CN=keycloak
+issuer=C=PA, O=UTP Blackwall Lab, CN=Blackwall Lab CA
+notBefore=Nov 26 01:16:39 2026 GMT
+notAfter=Dec 28 01:16:39 2027 GMT
+X509v3 Subject Alternative Name: 
+    DNS:acceso.localhost, DNS:keycloak, DNS:localhost
+X509v3 Key Usage: 
+    Digital Signature, Key Encipherment
+X509v3 Extended Key Usage: 
+    TLS Web Server Authentication

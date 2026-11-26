@@ -1,0 +1,17 @@
+$ curl -sI --cacert ca.crt https://app.localhost:8444/
+HTTP/1.1 302 Found
+Date: Thu, 26 Nov 2026 01:33:45 GMT
+Server: Apache
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: no-referrer
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: same-origin
+Cache-Control: no-store, no-cache, must-revalidate, private
+Pragma: no-cache
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'
+Set-Cookie: __Host-bw=rtha9krjshiqhesojipnds8m53; path=/; secure; HttpOnly; SameSite=Lax
+Location: https://acceso.localhost:8443/realms/proyecto-accesos/protocol/openid-connect/auth?client_id=cli-blackwall-dev&redirect_uri=https%3A%2F%2Fapp.localhost%3A8444%2Fcallback&response_type=code&scope=openid+profile&state=2Sv_K0bPjTQQExGU8bJbQw&nonce=w8QZF_rOpo7e0d5JrY8lfg&code_challenge=teJcjmy2GQmv5Kmo_3IU9_qTi0wVK0gLJjqH_M6Keko&code_challenge_method=S256
+Content-Type: text/html; charset=UTF-8

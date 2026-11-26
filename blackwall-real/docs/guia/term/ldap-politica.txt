@@ -1,0 +1,16 @@
+$ ldapsearch -H ldaps://… -b cn=default,ou=politicas,dc=blackwall,dc=utp
+dn: cn=default,ou=politicas,dc=blackwall,dc=utp
+objectClass: device
+objectClass: pwdPolicy
+cn: default
+pwdAttribute: userPassword
+pwdMinLength: 12
+pwdCheckQuality: 1
+pwdInHistory: 5
+pwdMaxFailure: 5
+pwdLockout: TRUE
+pwdLockoutDuration: 60
+pwdFailureCountInterval: 0
+pwdMustChange: FALSE
+pwdAllowUserChange: TRUE
+pwdSafeModify: FALSE

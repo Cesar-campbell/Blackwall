@@ -1,0 +1,49 @@
+$ curl -s https://acceso.localhost:8443/realms/proyecto-accesos/.well-known/openid-configuration | jq (campos clave)
+{
+  "issuer": "https://acceso.localhost:8443/realms/proyecto-accesos",
+  "authorization_endpoint": "https://acceso.localhost:8443/realms/proyecto-accesos/protocol/openid-connect/auth",
+  "token_endpoint": "https://acceso.localhost:8443/realms/proyecto-accesos/protocol/openid-connect/token",
+  "end_session_endpoint": "https://acceso.localhost:8443/realms/proyecto-accesos/protocol/openid-connect/logout",
+  "jwks_uri": "https://acceso.localhost:8443/realms/proyecto-accesos/protocol/openid-connect/certs",
+  "grant_types_supported": [
+    "authorization_code",
+    "client_credentials",
+    "implicit",
+    "password",
+    "refresh_token",
+    "urn:ietf:params:oauth:grant-type:device_code",
+    "urn:ietf:params:oauth:grant-type:jwt-bearer",
+    "urn:ietf:params:oauth:grant-type:token-exchange",
+    "urn:ietf:params:oauth:grant-type:uma-ticket",
+    "urn:openid:params:grant-type:ciba"
+  ],
+  "response_types_supported": [
+    "code",
+    "none",
+    "id_token",
+    "token",
+    "id_token token",
+    "code id_token",
+    "code token",
+    "code id_token token"
+  ],
+  "id_token_signing_alg_values_supported": [
+    "PS384",
+    "RS384",
+    "EdDSA",
+    "ES384",
+    "HS256",
+    "HS512",
+    "ES256",
+    "RS256",
+    "HS384",
+    "ES512",
+    "PS256",
+    "PS512",
+    "RS512"
+  ],
+  "code_challenge_methods_supported": [
+    "plain",
+    "S256"
+  ]
+}

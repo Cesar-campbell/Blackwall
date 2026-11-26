@@ -1,0 +1,8 @@
+$ openssl x509 -in ca.crt -noout -subject -dates -ext basicConstraints,keyUsage
+subject=C=PA, O=UTP Blackwall Lab, CN=Blackwall Lab CA
+notBefore=Nov 25 22:17:45 2026 GMT
+notAfter=Feb 27 22:17:45 2029 GMT
+X509v3 Basic Constraints: critical
+    CA:TRUE
+X509v3 Key Usage: critical
+    Certificate Sign, CRL Sign

@@ -1,0 +1,36 @@
+# Proxy de entrada del modo público: una sola dirección para la app (/) y el inicio de sesión (/acceso).
+{
+	auto_https off
+	admin off
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+:8080 {
+	# La consola de administración, el realm "master", la consola de cuenta y las métricas NO se publican
+	@bloqueado path /acceso/admin /acceso/admin/* /acceso/realms/master /acceso/realms/master/* /acceso/realms/*/account /acceso/realms/*/account/* /acceso/metrics* /acceso/health*
+	handle @bloqueado {
+		respond "No encontrado" 404
+	}
+
+	# Inicio de sesión (Keycloak, por HTTPS interno verificado con la CA del laboratorio)
+	handle /acceso/* {
+		reverse_proxy https://keycloak:8443 {
+			transport http {
+				tls_trust_pool file /certs/ca.crt
+			}
+			header_up X-Forwarded-Proto https
+		}
+	}
+
+	# Aplicación
+	handle {
+		reverse_proxy https://app:443 {
+			transport http {
+				tls_trust_pool file /certs/ca.crt
+			}
+			header_up X-Forwarded-Proto https
+		}
+	}
+}

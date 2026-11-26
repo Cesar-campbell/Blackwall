@@ -1,0 +1,78 @@
+Found Java version 17.0.21
+Available memory: 31747 MB
+Using JVM args: -Xmx7936m
+232 [main] INFO  org.parosproxy.paros.Constant - Copying default configuration to /home/zap/.ZAP/config.xml
+288 [main] INFO  org.parosproxy.paros.Constant - Creating directory /home/zap/.ZAP/session
+288 [main] INFO  org.parosproxy.paros.Constant - Creating directory /home/zap/.ZAP/dirbuster
+288 [main] INFO  org.parosproxy.paros.Constant - Creating directory /home/zap/.ZAP/fuzzers
+288 [main] INFO  org.parosproxy.paros.Constant - Creating directory /home/zap/.ZAP/plugin
+Job replacer set description = bearer
+Job replacer set matchType = req_header
+Job replacer set matchString = Authorization
+Job replacer set matchRegex = false
+Job replacer set replacementString = Bearer eyJ…[redactado]
+Job replacer set initiators = []
+Job requestor set url = https://app.localhost:8444/
+Job requestor set method = GET
+Job requestor set url = https://app.localhost:8444/api/yo
+Job requestor set method = GET
+Job requestor set url = https://app.localhost:8444/api/casos
+Job requestor set method = GET
+Job requestor set url = https://app.localhost:8444/api/casos/INC-001
+Job requestor set method = GET
+Job requestor set url = https://app.localhost:8444/api/estadisticas
+Job requestor set method = GET
+Job requestor set url = https://app.localhost:8444/api/usuarios
+Job requestor set method = GET
+Job requestor set url = https://app.localhost:8444/api/auditoria
+Job requestor set method = GET
+Job requestor set url = https://app.localhost:8444/api/config
+Job requestor set method = GET
+Job requestor set url = https://app.localhost:8444/api/casos
+Job requestor set method = POST
+Job requestor set data = {"titulo":"zap","descripcion":"zap","severidad":"baja"}
+Job requestor set headers = [Content-Type: application/json]
+Job spider set context = blackwall
+Job spider set maxDuration = 2
+Job passiveScan-wait set maxDuration = 3
+Job activeScan set context = blackwall
+Job activeScan set maxRuleDurationInMins = 1
+Job activeScan set maxScanDurationInMins = 7
+Job report set template = traditional-json
+Job report set reportDir = /zap/wrk
+Job report set reportFile = zap-antes
+Job report set reportTitle = Blackwall - antes
+Job report set template = traditional-html
+Job report set reportDir = /zap/wrk
+Job report set reportFile = zap-antes
+Job report set reportTitle = Blackwall - antes
+Job replacer started
+Job replacer finished, time taken: 00:00:00
+Job requestor started
+Job requestor requesting URL https://app.localhost:8444/
+Job requestor requesting URL https://app.localhost:8444/api/yo
+Job requestor requesting URL https://app.localhost:8444/api/casos
+Job requestor requesting URL https://app.localhost:8444/api/casos/INC-001
+Job requestor requesting URL https://app.localhost:8444/api/estadisticas
+Job requestor requesting URL https://app.localhost:8444/api/usuarios
+Job requestor requesting URL https://app.localhost:8444/api/auditoria
+Job requestor requesting URL https://app.localhost:8444/api/config
+Job requestor requesting URL https://app.localhost:8444/api/casos
+Job requestor finished, time taken: 00:00:00
+Job spider started
+Job spider requesting URL https://app.localhost:8444
+Job spider found 15 URLs
+Job spider finished, time taken: 00:00:03
+Job passiveScan-wait started
+Job passiveScan-wait finished, time taken: 00:00:02
+Job activeScan started
+Job activeScan finished, time taken: 00:03:59
+Job report started
+Job report generated report /zap/wrk/zap-antes.json
+Job report finished, time taken: 00:00:00
+Job report started
+Job report generated report /zap/wrk/zap-antes.html
+Job report finished, time taken: 00:00:00
+Automation plan succeeded!
+Nov 25, 2026 10:40:21 PM java.util.prefs.FileSystemPreferences$1 run
+INFO: Created user preferences directory.

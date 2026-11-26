@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blackwall · Gestión de incidentes</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fff'/%3E%3Ccircle cx='32' cy='32' r='24' fill='none' stroke='%23003366' stroke-width='6' stroke-dasharray='38.5 11.5' transform='rotate(-80 32 32)'/%3E%3Cpath d='M26.5 31v-3.5a5.5 5.5 0 0 1 11 0V31' fill='none' stroke='%23003366' stroke-width='2.8' stroke-linecap='round'/%3E%3Crect x='23.5' y='30.5' width='17' height='13' rx='2.5' fill='%23003366'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<section id="login">
+  <div class="brand">
+    <div class="lg"><span id="icLogo"></span>BLACKWALL</div>
+    <div><div class="eslo">Nadie cruza sin ser verificado</div><h1>Gestión de incidentes de seguridad</h1><p>Reporta, analiza y da seguimiento a incidentes. Cada persona ve y hace solo lo que su rol permite.</p></div>
+    <div class="foot">Universidad Tecnológica de Panamá · FISC · Ciberseguridad II</div>
+  </div>
+  <div class="lbox">
+    <h2>Iniciar sesión</h2>
+    <div id="lerr"></div>
+    <a class="btn w mt" href="/auth/login" id="bLogin">Iniciar sesión</a>
+  </div>
+</section>
+
+<!-- ================= APLICACIÓN ================= -->
+<div id="app">
+  <nav id="side"></nav>
+  <header class="top">
+    <h1 id="vtitle"></h1>
+    <div class="av" id="av"></div><div class="who"><b id="wName"></b><span class="mut" id="wRole"></span></div>
+    <button class="btn sec s" id="bOut"></button>
+  </header>
+  <main id="view"></main>
+</div>
+<div id="modal" hidden></div><div id="toast"></div>
+<script src="/assets/app.js"></script>
+</body>
+</html>

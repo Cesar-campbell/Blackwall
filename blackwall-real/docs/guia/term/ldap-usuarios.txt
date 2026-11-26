@@ -1,0 +1,22 @@
+$ ldapsearch -H ldaps://… -b dc=blackwall,dc=utp '(objectClass=inetOrgPerson)' uid cn
+dn: uid=campbell.cesar,ou=ti,dc=blackwall,dc=utp
+uid: campbell.cesar
+cn: Cesar Campbell
+dn: uid=cruz.irvin,ou=soc,dc=blackwall,dc=utp
+uid: cruz.irvin
+cn: Irvin Cruz
+dn: uid=pinto.nicole,ou=soc,dc=blackwall,dc=utp
+uid: pinto.nicole
+cn: Nicole Pinto
+dn: uid=galvez.angel,ou=cum,dc=blackwall,dc=utp
+uid: galvez.angel
+cn: Angel Galvez
+dn: uid=ejemplo.usuario,ou=usr,dc=blackwall,dc=utp
+uid: ejemplo.usuario
+cn: Usuario Ejemplo
+dn: uid=ejemplo.usuario2,ou=usr,dc=blackwall,dc=utp
+uid: ejemplo.usuario2
+cn: Usuario Ejemplo Dos
+dn: uid=cordero.moises,ou=pub,dc=blackwall,dc=utp
+uid: cordero.moises
+cn: Moises Cordero

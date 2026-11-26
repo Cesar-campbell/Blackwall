@@ -1,0 +1,245 @@
+{
+	"@programName": "ZAP",
+	"@version": "2.17.0",
+	"@generated": "Wed, 25 Nov 2026 22:59:44",
+	"created": "2026-11-25T22:59:44.201458506Z",
+	"insights":[
+		{
+			"level": "Low",
+			"reason": "Warning",
+			"site": "",
+			"key": "insight.log.warn",
+			"description": "ZAP warnings logged - see the zap.log file for details",
+			"statistic": "16"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "",
+			"key": "insight.network.failure",
+			"description": "Percentage of network failures",
+			"statistic": "1"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://app.localhost:8444",
+			"key": "insight.code.2xx",
+			"description": "Percentage of responses with status code 2xx",
+			"statistic": "56"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://app.localhost:8444",
+			"key": "insight.code.4xx",
+			"description": "Percentage of responses with status code 4xx",
+			"statistic": "43"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://app.localhost:8444",
+			"key": "insight.endpoint.ctype.application/json",
+			"description": "Percentage of endpoints with content type application/json",
+			"statistic": "64"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://app.localhost:8444",
+			"key": "insight.endpoint.ctype.text/css",
+			"description": "Percentage of endpoints with content type text/css",
+			"statistic": "7"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://app.localhost:8444",
+			"key": "insight.endpoint.ctype.text/html",
+			"description": "Percentage of endpoints with content type text/html",
+			"statistic": "7"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://app.localhost:8444",
+			"key": "insight.endpoint.ctype.text/javascript",
+			"description": "Percentage of endpoints with content type text/javascript",
+			"statistic": "7"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://app.localhost:8444",
+			"key": "insight.endpoint.ctype.text/plain",
+			"description": "Percentage of endpoints with content type text/plain",
+			"statistic": "14"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://app.localhost:8444",
+			"key": "insight.endpoint.method.GET",
+			"description": "Percentage of endpoints with method GET",
+			"statistic": "92"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://app.localhost:8444",
+			"key": "insight.endpoint.method.POST",
+			"description": "Percentage of endpoints with method POST",
+			"statistic": "7"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://app.localhost:8444",
+			"key": "insight.endpoint.total",
+			"description": "Count of total endpoints",
+			"statistic": "14"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://app.localhost:8444",
+			"key": "insight.response.slow",
+			"description": "Percentage of slow responses",
+			"statistic": "16"
+		}
+	],
+	"site":[ 
+		{
+			"@name": "https://app.localhost:8444",
+			"@host": "app.localhost",
+			"@port": "8444",
+			"@ssl": "true",
+			"alerts": [ 
+				{
+					"pluginid": "10027",
+					"alertRef": "10027",
+					"alert": "Information Disclosure - Suspicious Comments",
+					"name": "Information Disclosure - Suspicious Comments",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>The response appears to contain suspicious comments which may help an attacker.</p>",
+					"instances":[ 
+						{
+							"id": "3",
+							"uri": "https://app.localhost:8444/assets/app.js",
+							"nodeName": "https:\/\/app.localhost:8444\/assets\/app.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "ackwall \u00B7 interfaz. Todo lo que se muestra v",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"/* Blackwall \u00B7 interfaz. Todo lo que se muestra viene de la API real (/api/*); aqu\u00ED no hay datos ni reglas de seguridad:\n   el m\", see evidence field for the suspicious comment/snippet."
+						}
+					],
+					"count": "1",
+					"systemic": false,
+					"solution": "<p>Remove all comments that return information that may help an attacker and fix any underlying problems they refer to.</p>",
+					"otherinfo": "<p>The following pattern was used: \\bTODO\\b and was detected in likely comment: \"/* Blackwall \u00B7 interfaz. Todo lo que se muestra viene de la API real (/api/*); aqu\u00ED no hay datos ni reglas de seguridad:</p><p>   el m\", see evidence field for the suspicious comment/snippet.</p>",
+					"reference": "",
+					"cweid": "615",
+					"wascid": "13",
+					"sourceid": "37"
+				},
+				{
+					"pluginid": "10112",
+					"alertRef": "10112",
+					"alert": "Session Management Response Identified",
+					"name": "Session Management Response Identified",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>The given response has been identified as containing a session management token. The 'Other Info' field contains a set of header tokens that can be used in the Header Based Session Management Method. If the request is in a context which has a Session Management Method set to \"Auto-Detect\" then this rule will change the session management to use the tokens identified.</p>",
+					"instances":[ 
+						{
+							"id": "1",
+							"uri": "https://app.localhost:8444",
+							"nodeName": "https:\/\/app.localhost:8444",
+							"method": "GET",
+							"param": "__Host-bw",
+							"attack": "",
+							"evidence": "__Host-bw",
+							"otherinfo": "cookie:__Host-bw"
+						},
+						{
+							"id": "0",
+							"uri": "https://app.localhost:8444/",
+							"nodeName": "https:\/\/app.localhost:8444\/",
+							"method": "GET",
+							"param": "__Host-bw",
+							"attack": "",
+							"evidence": "__Host-bw",
+							"otherinfo": "cookie:__Host-bw"
+						}
+					],
+					"count": "2",
+					"systemic": false,
+					"solution": "<p>This is an informational alert rather than a vulnerability and so there is nothing to fix.</p>",
+					"otherinfo": "<p>cookie:__Host-bw</p>",
+					"reference": "<p>https://www.zaproxy.org/docs/desktop/addons/authentication-helper/session-mgmt-id/</p>",
+					"cweid": "-1",
+					"wascid": "-1",
+					"sourceid": "23"
+				},
+				{
+					"pluginid": "10104",
+					"alertRef": "10104",
+					"alert": "User Agent Fuzzer",
+					"name": "User Agent Fuzzer",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>Check for differences in response based on fuzzed User Agent (eg. mobile sites, access as a Search Engine Crawler). Compares the response statuscode and the hashcode of the response body with the original response.</p>",
+					"instances":[ 
+						{
+							"id": "6",
+							"uri": "https://app.localhost:8444/api/casos",
+							"nodeName": "https:\/\/app.localhost:8444\/api\/casos ()({titulo,descripcion,severidad})",
+							"method": "POST",
+							"param": "Header User-Agent",
+							"attack": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "5",
+							"uri": "https://app.localhost:8444/api/casos",
+							"nodeName": "https:\/\/app.localhost:8444\/api\/casos ()({titulo,descripcion,severidad})",
+							"method": "POST",
+							"param": "Header User-Agent",
+							"attack": "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "4",
+							"uri": "https://app.localhost:8444/api/casos",
+							"nodeName": "https:\/\/app.localhost:8444\/api\/casos ()({titulo,descripcion,severidad})",
+							"method": "POST",
+							"param": "Header User-Agent",
+							"attack": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "3",
+					"systemic": true,
+					"solution": "",
+					"otherinfo": "",
+					"reference": "<p>https://owasp.org/www-project-web-security-testing-guide/</p>",
+					"cweid": "0",
+					"wascid": "0",
+					"sourceid": "51"
+				}
+			]
+		}
+	],
+	"sequences":[
+	]
+
+}

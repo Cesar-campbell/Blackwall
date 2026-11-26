@@ -1,0 +1,13 @@
+$ curl -si --cacert ca.crt https://app.localhost:8444/api/casos
+HTTP/1.1 401 Unauthorized
+Date: Thu, 26 Nov 2026 01:33:45 GMT
+Server: Apache
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: no-referrer
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: same-origin
+Cache-Control: no-store, no-cache, must-revalidate, private
+Pragma: no-cache

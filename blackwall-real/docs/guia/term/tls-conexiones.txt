@@ -1,0 +1,28 @@
+$ openssl s_client -connect <host:puerto> -CAfile ca.crt -brief
+--- app
+Connecting to 127.0.0.1
+CONNECTION ESTABLISHED
+Protocol version: TLSv1.3
+Ciphersuite: TLS_AES_256_GCM_SHA384
+Peer certificate: C=PA, O=UTP Blackwall Lab, CN=app
+Hash used: SHA256
+Signature type: rsa_pss_rsae_sha256
+Verification: OK
+--- keycloak (IdP)
+Connecting to 127.0.0.1
+CONNECTION ESTABLISHED
+Protocol version: TLSv1.3
+Ciphersuite: TLS_AES_256_GCM_SHA384
+Peer certificate: C=PA, O=UTP Blackwall Lab, CN=keycloak
+Hash used: SHA256
+Signature type: rsa_pss_rsae_sha256
+Verification: OK
+--- directorio (LDAPS, desde el contenedor de la app)
+Connecting to 172.19.0.3
+Can't use SSL_get_servername
+CONNECTION ESTABLISHED
+Protocol version: TLSv1.3
+Ciphersuite: TLS_AES_256_GCM_SHA384
+Peer certificate: C=PA, O=UTP Blackwall Lab, CN=ldap
+Hash used: SHA256
+Signature type: rsa_pss_rsae_sha256

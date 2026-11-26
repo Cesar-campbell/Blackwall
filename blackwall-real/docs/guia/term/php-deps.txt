@@ -1,0 +1,5 @@
+$ versiones y librerías de la aplicación
+PHP 8.3.37
+firebase/php-jwt v7.2.2
+extensiones: curl json ldap mbstring openssl pdo_sqlite sodium 
+Server version: Apache/2.4.71 (Debian)

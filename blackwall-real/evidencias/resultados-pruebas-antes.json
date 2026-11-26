@@ -1,0 +1,257 @@
+{
+  "fecha": "2026-11-25T17:32:21",
+  "total": 25,
+  "pasan": 20,
+  "casos": [
+    {
+      "id": "CP-01",
+      "caso": "Inicio de sesión correcto con MFA",
+      "actor": "ROL_ANALISTA",
+      "accion": "Login OIDC + TOTP",
+      "esperado": "Acceso concedido; el token contiene el rol ROL_ANALISTA",
+      "obtenido": "TOTP solicitado en el 2.º ingreso=True; roles=['ROL_ANALISTA']; acr=1",
+      "ok": true,
+      "seg": 7.1
+    },
+    {
+      "id": "CP-02",
+      "caso": "Cinco contraseñas incorrectas seguidas",
+      "actor": "Cualquiera",
+      "accion": "Login con clave errónea ×5",
+      "esperado": "Cuenta bloqueada temporalmente; evento registrado en auditoría",
+      "obtenido": "5 intentos rechazados=True; clave correcta rechazada durante el bloqueo=True; eventos en auditoría=0 (LOCKOUT=False)",
+      "ok": false,
+      "seg": 1.3
+    },
+    {
+      "id": "CP-03",
+      "caso": "Access token expirado",
+      "actor": "Cualquiera",
+      "accion": "GET /api/casos",
+      "esperado": "401 Unauthorized",
+      "obtenido": "EXCEPCIÓN: AttributeError(\"'list' object has no attribute 'get'\")",
+      "ok": false,
+      "seg": 10.2
+    },
+    {
+      "id": "CP-04",
+      "caso": "Token con firma alterada",
+      "actor": "Cualquiera",
+      "accion": "GET /api/casos",
+      "esperado": "401 Unauthorized",
+      "obtenido": "payload alterado=401 (firma inválida); alg=none=401 (algoritmo no permitido); HS256=401 (algoritmo no permitido)",
+      "ok": true,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-05",
+      "caso": "Usuario intenta borrar un caso",
+      "actor": "ROL_USUARIO",
+      "accion": "DELETE /api/casos/{id}",
+      "esperado": "403 Forbidden",
+      "obtenido": "DELETE=403 (requiere casos:borrar); el caso sigue existiendo=True",
+      "ok": true,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-06",
+      "caso": "Usuario consulta un caso ajeno",
+      "actor": "ROL_USUARIO",
+      "accion": "GET /api/casos/{id ajeno}",
+      "esperado": "403 o 404 (sin revelar el contenido)",
+      "obtenido": "GET=404; contenido filtrado=False; aparece en su listado=False",
+      "ok": true,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-07",
+      "caso": "Auditor intenta modificar un caso",
+      "actor": "ROL_AUDITOR",
+      "accion": "PUT /api/casos/{id}",
+      "esperado": "403 Forbidden",
+      "obtenido": "PUT=200 (None); lectura permitida=200",
+      "ok": false,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-08",
+      "caso": "Analista accede a la configuración",
+      "actor": "ROL_ANALISTA",
+      "accion": "GET /api/config",
+      "esperado": "403 Forbidden",
+      "obtenido": "GET=403 (requiere config:admin); PUT=403",
+      "ok": true,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-09",
+      "caso": "redirect_uri no registrada",
+      "actor": "Cliente",
+      "accion": "Login con redirect alterado",
+      "esperado": "Keycloak rechaza la solicitud",
+      "obtenido": "https://evil.example/callback → 400; ruta alterada → 400; con parámetros → 400 (auth endpoint -> 400 <!DOCTYPE html>\n<html class=\"login-pf\" )",
+      "ok": true,
+      "seg": 0.1
+    },
+    {
+      "id": "CP-10",
+      "caso": "Captura del tráfico de login",
+      "actor": "—",
+      "accion": "tcpdump/Wireshark sobre HTTPS",
+      "esperado": "No se observan contraseñas ni tokens en texto plano",
+      "obtenido": "  - token en claro .................... 1 coincidencias (detalle en evidencias/captura-login.txt)",
+      "ok": true,
+      "seg": 16.0
+    },
+    {
+      "id": "CP-11",
+      "caso": "Segundo factor obligatorio para ROL_ADMIN",
+      "actor": "ROL_ADMIN",
+      "accion": "Login sin TOTP configurado",
+      "esperado": "Keycloak obliga a configurar TOTP; el token trae ROL_ADMIN",
+      "obtenido": "TOTP solicitado=True; roles=['MFA_OBLIGATORIO', 'ROL_ADMIN']",
+      "ok": true,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-12",
+      "caso": "Segundo factor obligatorio para ROL_AUDITOR",
+      "actor": "ROL_AUDITOR",
+      "accion": "Login sin TOTP configurado",
+      "esperado": "Keycloak obliga a configurar TOTP; el token trae ROL_AUDITOR",
+      "obtenido": "TOTP solicitado=True; roles=['ROL_AUDITOR', 'MFA_OBLIGATORIO']",
+      "ok": true,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-13",
+      "caso": "TOTP incorrecto no concede acceso",
+      "actor": "ROL_ADMIN",
+      "accion": "Contraseña correcta + código 000000",
+      "esperado": "Acceso denegado",
+      "obtenido": "login con TOTP inválido → ok=False",
+      "ok": true,
+      "seg": 0.2
+    },
+    {
+      "id": "CP-14",
+      "caso": "PKCE: code_verifier incorrecto",
+      "actor": "Cliente",
+      "accion": "Canjear el código con otro verifier",
+      "esperado": "400 invalid_grant",
+      "obtenido": "verifier incorrecto → 400 invalid_grant; verifier correcto → 200",
+      "ok": true,
+      "seg": 0.2
+    },
+    {
+      "id": "CP-15",
+      "caso": "Flujos inseguros deshabilitados",
+      "actor": "Cliente",
+      "accion": "Password grant (ROPC) e Implicit",
+      "esperado": "Rechazados por Keycloak",
+      "obtenido": "ROPC → 400 unauthorized_client; Implicit (response_type=token) → 302 https://app.localhost:8444/callback#error=unauthorized_clien",
+      "ok": true,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-16",
+      "caso": "Refresh token con rotación",
+      "actor": "Cualquiera",
+      "accion": "Reutilizar un refresh token ya rotado",
+      "esperado": "400 invalid_grant",
+      "obtenido": "1.º uso=200 (token nuevo≠viejo: True); reutilizar el viejo → 400 invalid_grant",
+      "ok": true,
+      "seg": 0.1
+    },
+    {
+      "id": "CP-17",
+      "caso": "Cierre de sesión revoca en IdP y app",
+      "actor": "Cualquiera",
+      "accion": "POST /auth/logout, luego reutilizar sesión y refresh",
+      "esperado": "Sesión de la app 401; refresh token inválido en Keycloak",
+      "obtenido": "logout sin CSRF=403; con CSRF=200; /auth/sesion después=401; redirect al IdP=True",
+      "ok": true,
+      "seg": 0.2
+    },
+    {
+      "id": "CP-18",
+      "caso": "Callback con state alterado (CSRF del flujo)",
+      "actor": "Atacante",
+      "accion": "GET /callback?code=…&state=falso",
+      "esperado": "La app rechaza y no crea sesión",
+      "obtenido": "redirección=/?e=state; sesión creada=False",
+      "ok": true,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-19",
+      "caso": "ROL_INVITADO solo ve datos públicos",
+      "actor": "ROL_INVITADO",
+      "accion": "GET /api/casos, /api/estadisticas",
+      "esperado": "403 en casos; estadísticas públicas",
+      "obtenido": "casos=403; estadísticas=200 (solo ['alcance', 'publico', 'resueltos', 'total']); crear caso=403",
+      "ok": true,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-20",
+      "caso": "Usuario edita su caso abierto; no el ajeno ni cambia estado",
+      "actor": "ROL_USUARIO",
+      "accion": "PUT /api/casos/{id}",
+      "esperado": "Propio abierto: 200 (solo título/descr.); ajeno: 404; cambiar estado: 403",
+      "obtenido": "propio=200; ajeno=404; con estado=403; el ajeno no cambió=True",
+      "ok": true,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-21",
+      "caso": "Analista opera casos pero no borra ni administra",
+      "actor": "ROL_ANALISTA",
+      "accion": "PUT/DELETE /casos, POST /usuarios",
+      "esperado": "PUT 200; DELETE 403; POST usuarios 403",
+      "obtenido": "actualizar=200; borrar=403; crear usuario=403",
+      "ok": true,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-22",
+      "caso": "Administrador crea usuario en el directorio",
+      "actor": "ROL_ADMIN",
+      "accion": "POST /api/usuarios; login del nuevo usuario",
+      "esperado": "Se crea en LDAP, Keycloak le asigna el rol por grupo; clave corta rechazada",
+      "obtenido": "clave corta=400; formato inválido=400; creado=201; login → roles=['ROL_ANALISTA']; duplicado=400",
+      "ok": true,
+      "seg": 0.1
+    },
+    {
+      "id": "CP-23",
+      "caso": "Cambio de grupo cambia el rol (grupo→rol automático)",
+      "actor": "ROL_ADMIN",
+      "accion": "PUT /api/usuarios/{id}",
+      "esperado": "El siguiente token del usuario trae el rol del grupo nuevo",
+      "obtenido": "PUT=200; roles tras el cambio=['ROL_ANALISTA']; admin editando su propia cuenta=400",
+      "ok": false,
+      "seg": 0.1
+    },
+    {
+      "id": "CP-24",
+      "caso": "Auditoría registra accesos permitidos y denegados",
+      "actor": "ROL_AUDITOR",
+      "accion": "GET /api/auditoria",
+      "esperado": "Auditor la lee; aparecen DENY de CP-05/07/08 y eventos de Keycloak",
+      "obtenido": "auditor lee=200; denegaciones de la app=21; eventos de Keycloak=0; usuario lee auditoría=403",
+      "ok": false,
+      "seg": 0.0
+    },
+    {
+      "id": "CP-25",
+      "caso": "Entradas maliciosas (XSS guardado, inyección en el id)",
+      "actor": "ROL_USUARIO",
+      "accion": "POST /api/casos; GET /api/casos/{inyección}",
+      "esperado": "El texto se guarda como dato; la inyección no altera la consulta",
+      "obtenido": "XSS guardado como texto=True (el navegador lo escapa al mostrarlo); inyección id=404/404; severidad inválida→media; tabla intacta=True",
+      "ok": true,
+      "seg": 0.0
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+$ ldapsearch -H ldaps://… -b dc=blackwall,dc=utp -s one dn
+dn: ou=ti,dc=blackwall,dc=utp
+dn: ou=cum,dc=blackwall,dc=utp
+dn: ou=pub,dc=blackwall,dc=utp
+dn: ou=soc,dc=blackwall,dc=utp
+dn: ou=usr,dc=blackwall,dc=utp
+dn: ou=servicio,dc=blackwall,dc=utp
+dn: ou=politicas,dc=blackwall,dc=utp

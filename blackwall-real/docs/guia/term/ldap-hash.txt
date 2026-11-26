@@ -1,0 +1,7 @@
+$ ldapsearch … -b uid=cruz.irvin,ou=soc,dc=blackwall,dc=utp userPassword
+dn: uid=cruz.irvin,ou=soc,dc=blackwall,dc=utp
+userPassword:: e1NTSEF9bFF5Y3RhbjIxUlFsaFl3dlZLWkJBMzNwcUkxWnEvTWg=
+
+userPassword (decodificado, primeros caracteres):
+{SSHA}lQycta
+…[hash salado]

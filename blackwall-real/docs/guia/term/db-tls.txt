@@ -1,0 +1,10 @@
+$ psql: conexiones de Keycloak a la base (pg_stat_ssl) y un intento SIN TLS
+usename  | ssl |   tls   |         cipher         
+----------+-----+---------+------------------------
+ keycloak | t   | TLSv1.3 | TLS_AES_256_GCM_SHA384
+ keycloak | t   | TLSv1.3 | TLS_AES_256_GCM_SHA384
+(2 rows)
+
+
+--- intento de conexión sin cifrar:
+psql: error: connection to server at "db" (172.19.0.2), port 5432 failed: FATAL:  no pg_hba.conf entry for host "172.19.0.6", user "keycloak", database "keycloak", no encryption

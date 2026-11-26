@@ -1,0 +1,51 @@
+/* Blackwall: pantalla dividida (panel de marca a la izquierda, acceso a la derecha), igual que la aplicación */
+@font-face{font-family:"Inter";font-weight:400;font-display:swap;src:url(../fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;font-display:swap;src:url(../fonts/inter-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;font-display:swap;src:url(../fonts/inter-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:700;font-display:swap;src:url(../fonts/inter-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:800;font-display:swap;src:url(../fonts/inter-latin-800-normal.woff2) format("woff2")}
+
+:root, .pf-v5-c-login {
+  --pf-v5-global--FontFamily--text: "Inter","Segoe UI",system-ui,-apple-system,Roboto,Ubuntu,sans-serif;
+  --pf-v5-global--FontFamily--heading: "Inter","Segoe UI",system-ui,-apple-system,Roboto,Ubuntu,sans-serif;
+  --pf-v5-global--primary-color--100: #0a4d8c;
+  --pf-v5-global--primary-color--200: #003366;
+  --pf-v5-global--link--Color: #0a4d8c;
+  --pf-v5-global--link--Color--hover: #003366;
+  --pf-v5-global--BorderColor--100: #dbe2ea;
+}
+html.login-pf, html.login-pf body { background: #f1f4f8 !important; font-family: var(--pf-v5-global--FontFamily--text); color: #18222e; }
+html.login-pf body { margin: 0; }
+
+.bw-split { min-height: 100vh; display: grid; grid-template-columns: 1.05fr 1fr; }
+
+/* ---- panel de marca ---- */
+.bw-brand { position: relative; background: linear-gradient(160deg, #002a55, #0a4d8c); color: #fff; padding: clamp(2rem, 5vw, 4.5rem); display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+.bw-brand::before { content: ""; position: absolute; inset: 0; background: linear-gradient(#ffffff0d 1px, transparent 1px) 0 0/100% 3rem, linear-gradient(90deg, #ffffff0d 1px, transparent 1px) 0 0/3rem 100%; mask: linear-gradient(120deg, #000, transparent 75%); -webkit-mask: linear-gradient(120deg, #000, transparent 75%); }
+.bw-brand > * { position: relative; }
+.bw-lg { display: flex; align-items: center; gap: .8rem; font-weight: 800; font-size: 1.25rem; letter-spacing: .14em; }
+.bw-lg span { display: grid; place-items: center; width: 3rem; height: 3rem; }
+.bw-eslo { font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; opacity: .75; margin-bottom: 1rem; }
+.bw-h1 { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1.08; letter-spacing: -.03em; font-weight: 800; max-width: 30rem; margin: 0; color: #fff; }
+.bw-brand p { opacity: .85; max-width: 28rem; margin: 1rem 0 0; line-height: 1.5; }
+.bw-foot { font-size: .78rem; opacity: .7; }
+
+/* ---- lado del acceso ---- */
+.bw-panel { display: grid; place-items: center; padding: clamp(1.5rem, 5vw, 4rem); }
+.bw-panel .pf-v5-c-login { background: transparent !important; height: auto; min-height: 0; display: block; padding: 0; width: 100%; max-width: 32rem; }
+.bw-panel .pf-v5-c-login__container { display: block; padding: 0; margin: 0; width: 100%; }
+.bw-panel .pf-v5-c-login__main { background: transparent; box-shadow: none; border: 0; border-radius: 0; max-width: 32rem; width: 100%; margin: 0; animation: bwUp .5s both; }
+.bw-panel .pf-v5-c-login__main-header { padding: 0 0 .6rem; border: 0; }
+.bw-panel .pf-v5-c-login__main-body, .bw-panel .pf-v5-c-login__main-footer { padding-left: 0; padding-right: 0; }
+.bw-panel .pf-v5-c-title { font-size: 1.7rem; font-weight: 700; letter-spacing: -.02em; }
+.bw-panel .pf-v5-c-form__label-text { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #5d6878; }
+.bw-panel .pf-v5-c-form-control { border-radius: 9px; --pf-v5-c-form-control--BorderColor: #dbe2ea; background: #fff; }
+.bw-panel .pf-v5-c-form-control:focus-within { --pf-v5-c-form-control--after--BorderBottomColor: #0a4d8c; }
+.bw-panel .pf-v5-c-button.pf-m-primary { background-color: #003366; border-radius: 9px; font-weight: 600; padding: .65rem 1rem; transition: background .15s; }
+.bw-panel .pf-v5-c-button.pf-m-primary:hover { background-color: #0a4d8c; }
+.bw-panel .pf-v5-c-button.pf-m-secondary { border-radius: 9px; }
+.bw-panel .pf-v5-c-alert { border-radius: 9px; }
+
+@keyframes bwUp { from { opacity: 0; transform: translateY(12px); } }
+@media (max-width: 900px) { .bw-split { grid-template-columns: 1fr; } .bw-brand { padding: 1.5rem; } .bw-brand p, .bw-h1 { display: none; } }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }

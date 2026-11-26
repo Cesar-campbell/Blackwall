@@ -1,0 +1,16 @@
+Captura del login por HTTPS: /var/www/html/Desarrollo-Web-UTP/zerotrust-facil/proyecto-final/blackwall-real/evidencias/login-https.pcap  (46953 bytes)
+Paquetes: 82
+Protocolo de aplicación observado:      46 TCP      32 TLSv1.3       4 TLSv1.2 
+Versión TLS negociada: 0x0303 
+Suite de cifrado: 0x1302 
+
+Búsqueda de datos sensibles en texto plano dentro del .pcap (HTTPS):
+  - contraseña del usuario ............ 0 coincidencias
+  - tokens JWT (prefijo eyJ) .......... 0 coincidencias
+  - secreto del cliente ............... 0 coincidencias
+  - code_verifier (PKCE) .............. 0 coincidencias
+  - campo password= ................... 0 coincidencias
+
+Control sin TLS (HTTP plano, /var/www/html/Desarrollo-Web-UTP/zerotrust-facil/proyecto-final/blackwall-real/evidencias/control-http.pcap):
+  - contraseña en claro ............... 1 coincidencias
+  - token en claro .................... 1 coincidencias

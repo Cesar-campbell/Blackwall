@@ -1,0 +1,28 @@
+# Modo público: se suma a ../blackwall-real/docker-compose.yml (lo usa servidor.sh).
+# Variables: PUBLIC_URL (dirección pública, sin barra final) y SRV_DIR (esta carpeta).
+services:
+  keycloak:
+    environment:
+      KC_HOSTNAME: ${PUBLIC_URL}/acceso
+      KC_HTTP_RELATIVE_PATH: /acceso
+      KC_PROXY_HEADERS: xforwarded
+      JAVA_OPTS_KC_HEAP: "-Xms192m -Xmx640m"   # tope de memoria: Keycloak no pasa de ~0,9 GB en total
+
+  app:
+    environment:
+      APP_URL: ${PUBLIC_URL}
+      OIDC_ISSUER: ${PUBLIC_URL}/acceso/realms/proyecto-accesos
+      OIDC_INTERNAL_ISSUER: https://keycloak:8443/acceso/realms/proyecto-accesos   # el servidor habla con Keycloak por la red interna
+      KC_URL: https://keycloak:8443/acceso
+      RESOLVE_MAP: ""
+      CONFIANZA_PROXY: "1"                                                       # la auditoría registra la IP real del visitante
+
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    volumes:
+      - ${SRV_DIR}/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${BW_HOME}/certs:/certs:ro
+    ports:
+      - "127.0.0.1:8091:8080"
+    networks: [bw]

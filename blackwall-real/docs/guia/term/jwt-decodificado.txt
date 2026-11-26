@@ -1,0 +1,47 @@
+$ access token de ejemplo.usuario, decodificado (firma y datos sensibles redactados)
+CABECERA
+{
+  "alg": "RS256",
+  "typ": "JWT",
+  "kid": "7ijHkc1E6eNBS-wu-NfYnb0E_c6qHGQgbazPWRADt80"
+}
+
+CARGA (payload)
+{
+  "exp": 1795657125,
+  "iat": 1795656825,
+  "auth_time": 1795656825,
+  "jti": "onrtac:a…",
+  "iss": "https://acceso.localhost:8443/realms/proyecto-accesos",
+  "aud": "cli-blackwall-dev",
+  "sub": "a239fc13…",
+  "typ": "Bearer",
+  "azp": "cli-blackwall-dev",
+  "sid": "yx7esXw2…",
+  "acr": "1",
+  "scope": [
+    "openid",
+    "casos:leer_propios",
+    "profile",
+    "casos:crear",
+    "email",
+    "casos:escribir_propios",
+    "comentarios:escribir_propios",
+    "estadisticas:leer_propios"
+  ],
+  "email_verified": false,
+  "roles": [
+    "ROL_USUARIO"
+  ],
+  "name": "Usuario Ejemplo",
+  "groups": [
+    "GRP_USR_USUARIO"
+  ],
+  "preferred_username": "ejemplo.usuario",
+  "given_name": "Usuario",
+  "family_name": "Ejemplo",
+  "email": "ejemplo.usuario@blackwall.utp"
+}
+
+FIRMA (RS256)
+BNwpymF3563VBfj8vjanT9dl…[redactado]

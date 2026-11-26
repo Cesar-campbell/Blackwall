@@ -1,0 +1,10 @@
+$ ldapsearch -b olcDatabase={2}mdb,cn=config olcAccess olcPPolicyDefault
+dn: olcDatabase={2}mdb,cn=config
+olcAccess: {0}to attrs=userPassword by dn.exact="uid=svc-blackwall-sync,ou=ser
+ vicio,dc=blackwall,dc=utp" write by self write by anonymous auth by * none
+olcAccess: {1}to dn.subtree="dc=blackwall,dc=utp" by dn.exact="uid=svc-blackwa
+ ll-sync,ou=servicio,dc=blackwall,dc=utp" write by self read by * none
+dn: olcOverlay={0}ppolicy,olcDatabase={2}mdb,cn=config
+olcPPolicyHashCleartext: TRUE
+olcPPolicyUseLockout: TRUE
+olcPPolicyDefault: cn=default,ou=politicas,dc=blackwall,dc=utp

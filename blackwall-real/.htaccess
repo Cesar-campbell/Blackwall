@@ -1,0 +1,3 @@
+# Este directorio es de infraestructura y código fuente: el Apache del equipo no debe servirlo.
+# La app real corre en Docker (https://app.localhost:8444).
+Require all denied
