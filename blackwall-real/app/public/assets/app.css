@@ -106,3 +106,5 @@ body.in #login{display:none}#app{display:none}body.in #app{display:grid}
 .fx{display:flex;gap:.5rem;flex-wrap:wrap}.nw{white-space:nowrap}.maxw{max-width:32rem}
 .chk{display:flex;gap:.5rem;align-items:center;text-transform:none;letter-spacing:0;font-size:.9rem;color:var(--ink)}
 a.btn{text-decoration:none;justify-content:center}
+
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:0 .8rem}

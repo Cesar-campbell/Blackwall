@@ -26,7 +26,11 @@ final class Db
                 autor TEXT NOT NULL, autor_sub TEXT, texto TEXT NOT NULL, creado TEXT NOT NULL);
               CREATE TABLE IF NOT EXISTS auditoria(
                 id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, usuario TEXT NOT NULL, sub TEXT,
-                evento TEXT NOT NULL, resultado TEXT NOT NULL, detalle TEXT NOT NULL DEFAULT '', ip TEXT);");
+                evento TEXT NOT NULL, resultado TEXT NOT NULL, detalle TEXT NOT NULL DEFAULT '', ip TEXT);
+              CREATE TABLE IF NOT EXISTS sesiones(
+                sid TEXT PRIMARY KEY, usuario TEXT NOT NULL, rol TEXT NOT NULL DEFAULT '', inicio INTEGER NOT NULL, actividad INTEGER NOT NULL,
+                ciclos INTEGER NOT NULL DEFAULT 0, cerrada TEXT);
+              CREATE TABLE IF NOT EXISTS ajustes(clave TEXT PRIMARY KEY, valor TEXT NOT NULL);");
             if ($nuevo) {
                 self::sembrar($p);
             }

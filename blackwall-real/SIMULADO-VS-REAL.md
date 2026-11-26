@@ -26,7 +26,7 @@ Prototipo anterior: `../sigi.html` (todo corría dentro del navegador). Versión
 | 20 | Configuración (vida del token, intentos, bloqueo) | Objeto en memoria | Parámetros del realm de Keycloak | CP-03, CP-08 |
 | 21 | HTTPS | Ninguno (HTML estático) | TLS en la app, en Keycloak y LDAPS, con CA propia | CP-10 |
 | 22 | Secretos | `demo-firma` y la clave dentro del código | Variables de entorno, fuera del repositorio | `~/.local/share/blackwall/` |
-| 23 | Pruebas | 28 comprobaciones del motor simulado | 27 casos contra el sistema real | `scripts/bw.sh pruebas` |
+| 23 | Pruebas | 28 comprobaciones del motor simulado | 31 casos contra el sistema real | `scripts/bw.sh pruebas` |
 | 24 | OWASP ZAP | No aplicaba | Hecho: antes 0/2/4 (alta/media/baja) → después 0/0/0 | `evidencias/hallazgos-zap.md` |
 | 25 | Wireshark / captura de red | No aplicaba | Hecho: 0 claves y 0 tokens en claro con HTTPS | `evidencias/captura-login.txt` |
 | 26 | Dónde corre | Netlify (estático) | Docker en el equipo (no se puede publicar en Netlify) | `scripts/bw.sh arriba` |

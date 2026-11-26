@@ -47,6 +47,30 @@ final class Keycloak
         return ($st === 200 && !empty($l[0]['id'])) ? $l[0]['id'] : null;
     }
 
+    /**
+     * Id, estado de MFA y de bloqueo de un usuario, con caché corta (30 s): la pantalla de Usuarios preguntaba 3 veces
+     * por persona a Keycloak en cada visita. La caché se borra cuando el administrador cambia algo.
+     */
+    public static function estadoUsuario(string $username): array
+    {
+        $archivo = Config::datos() . '/estado-usuarios.json';
+        $cache = is_file($archivo) ? (json_decode((string) file_get_contents($archivo), true) ?: []) : [];
+        $e = $cache[$username] ?? null;
+        if ($e !== null && time() - $e['t'] < 30) {
+            return $e;
+        }
+        $id = self::idDe($username);
+        $e = ['id' => $id, 'mfa' => $id ? self::tieneOtp($id) : false, 'bloqueado' => $id ? self::bloqueado($id) : false, 't' => time()];
+        $cache[$username] = $e;
+        file_put_contents($archivo, json_encode($cache), LOCK_EX);
+        return $e;
+    }
+
+    public static function olvidarEstados(): void
+    {
+        @unlink(Config::datos() . '/estado-usuarios.json');
+    }
+
     public static function tieneOtp(string $id): bool
     {
         [$st, $c] = self::admin('GET', "/users/$id/credentials");
@@ -113,8 +137,8 @@ final class Keycloak
 
     public static function actualizarRealm(array $cambios): bool
     {
-        $r = self::realm();
-        [$st] = self::admin('PUT', '', array_merge($r, $cambios));
+        // Solo los campos que cambian: reenviar todo el realm rompe los objetos vacíos ({} pasaría a [])
+        [$st] = self::admin('PUT', '', $cambios);
         return $st === 204;
     }
 }

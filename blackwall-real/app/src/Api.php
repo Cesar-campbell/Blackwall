@@ -12,6 +12,7 @@ final class Principal
         public readonly string $usuario,
         public readonly array $roles,
         public readonly array $scopes,
+        public readonly string $sid = '',
     ) {
     }
 
@@ -89,7 +90,21 @@ final class Api
         }
         $roles = array_values(array_filter((array) ($c['roles'] ?? []), fn($r) => is_string($r) && str_starts_with($r, 'ROL_')));
         $scopes = array_values(array_filter(explode(' ', (string) ($c['scope'] ?? ''))));
-        return new Principal((string) $c['sub'], (string) ($c['preferred_username'] ?? '?'), $roles, $scopes);
+        $p = new Principal((string) $c['sub'], (string) ($c['preferred_username'] ?? '?'), $roles, $scopes, (string) ($c['sid'] ?? ''));
+        if ($p->sid !== '') {
+            // Las consultas automáticas de la interfaz (X-Auto: 1) no cuentan como actividad del usuario
+            $motivo = Sesiones::evaluar($p->sid, $p->usuario, $p->sub, ($_SERVER['HTTP_X_AUTO'] ?? '') !== '1', $p->roles[0] ?? '');
+            if ($motivo !== null) {
+                Db::auditar($p->usuario, $p->sub, "{$this->metodo} {$this->ruta}", 'DENY', "401 sesión cerrada ($motivo)");
+                header('WWW-Authenticate: Bearer realm="blackwall", error="invalid_token"');
+                $this->responder(401, ['error' => 'unauthorized', 'motivo' => $motivo, 'detalle' => match ($motivo) {
+                    'inactividad' => 'Tu sesión se cerró por inactividad.',
+                    'ciclos' => 'Alcanzaste el tiempo máximo de sesión.',
+                    default => 'La sesión ya fue cerrada.',
+                }]);
+            }
+        }
+        return $p;
     }
 
     // ------------------------------------------------------------------ utilidades de respuesta / permisos
@@ -365,11 +380,10 @@ final class Api
         $this->exigir('usuarios:leer', 'usuarios:admin');
         $salida = [];
         foreach (Ldap::listar() as $u) {
-            $kc = $u['svc'] ? null : Keycloak::idDe($u['id']);
+            $e = $u['svc'] ? ['mfa' => false, 'bloqueado' => false] : Keycloak::estadoUsuario($u['id']);
             $salida[] = [
                 'id' => $u['id'], 'nombre' => $u['n'], 'grupo' => $u['g'], 'rol' => $u['r'], 'servicio' => $u['svc'],
-                'mfa' => $kc ? Keycloak::tieneOtp($kc) : false,
-                'bloqueado' => $u['ldap_bloq'] || ($kc ? Keycloak::bloqueado($kc) : false),
+                'mfa' => $e['mfa'], 'bloqueado' => $u['ldap_bloq'] || $e['bloqueado'],
             ];
         }
         $this->ok($salida);
@@ -395,6 +409,7 @@ final class Api
             $this->malo('El nombre es obligatorio (máx. 80 caracteres).');
         }
         $this->validarClave((string) ($b['clave'] ?? ''));
+        Keycloak::olvidarEstados();
         Ldap::crear($id, $nombre, (string) ($b['grupo'] ?? ''), (string) $b['clave']);
         $this->ok(['ok' => true], 201, true);
     }
@@ -409,6 +424,7 @@ final class Api
         if ($nombre === '' || mb_strlen($nombre) > 80) {
             $this->malo('El nombre es obligatorio (máx. 80 caracteres).');
         }
+        Keycloak::olvidarEstados();
         Ldap::actualizar($id, $nombre, (string) ($this->cuerpo['grupo'] ?? ''));
         $this->ok(['ok' => true], 200, true);
     }
@@ -422,6 +438,7 @@ final class Api
         if (str_starts_with($id, 'svc-')) {
             $this->malo('La cuenta de servicio no se elimina desde aquí.');
         }
+        Keycloak::olvidarEstados();
         $kc = Keycloak::idDe($id);
         Ldap::eliminar($id);
         if ($kc) {
@@ -433,6 +450,7 @@ final class Api
     private function desbloquearUsuario(string $id): void
     {
         $this->exigir('usuarios:admin');
+        Keycloak::olvidarEstados();
         Ldap::desbloquear($id);
         if ($kc = Keycloak::idDe($id)) {
             Keycloak::desbloquear($kc);
@@ -455,18 +473,19 @@ final class Api
     {
         $this->exigir('config:admin');
         $r = Keycloak::realm();
-        $this->ok(['tokenMin' => intdiv((int) $r['accessTokenLifespan'], 60), 'maxIntentos' => (int) $r['failureFactor'],
-            'bloqueoSeg' => (int) $r['waitIncrementSeconds']]);
+        $this->ok(['cicloMin' => intdiv((int) $r['accessTokenLifespan'], 60), 'maxIntentos' => (int) $r['failureFactor'],
+            'bloqueoSeg' => (int) $r['waitIncrementSeconds'], 'roles' => Sesiones::todos()]);
     }
 
     private function guardarConfig(): void
     {
         $this->exigir('config:admin');
-        $t = (int) ($this->cuerpo['tokenMin'] ?? 0);
-        $i = (int) ($this->cuerpo['maxIntentos'] ?? 0);
-        $s = (int) ($this->cuerpo['bloqueoSeg'] ?? 0);
-        if ($t < 5 || $t > 15) {
-            $this->malo('La vida del token debe estar entre 5 y 15 minutos.');
+        $b = $this->cuerpo;
+        $c = (int) ($b['cicloMin'] ?? 0);
+        $i = (int) ($b['maxIntentos'] ?? 0);
+        $s = (int) ($b['bloqueoSeg'] ?? 0);
+        if ($c < 5 || $c > 15) {
+            $this->malo('La duración de cada ciclo debe estar entre 5 y 15 minutos.');
         }
         if ($i < 3 || $i > 10) {
             $this->malo('Los intentos fallidos permitidos deben estar entre 3 y 10.');
@@ -474,9 +493,35 @@ final class Api
         if ($s < 10 || $s > 3600) {
             $this->malo('El bloqueo debe durar entre 10 y 3600 segundos.');
         }
-        if (!Keycloak::actualizarRealm(['accessTokenLifespan' => $t * 60, 'failureFactor' => $i, 'waitIncrementSeconds' => $s])) {
-            $this->responder(502, ['error' => 'idp_error', 'detalle' => 'Keycloak no aceptó el cambio.']);
+        $porRol = [];
+        $mayor = 1;
+        foreach (Sesiones::ROLES as $rol) {
+            $x = $b['roles'][$rol] ?? null;
+            if (!is_array($x)) {
+                $this->malo("Falta la configuración del rol $rol.");
+            }
+            $n = (int) ($x['maxCiclos'] ?? 0);
+            $in = (int) ($x['inactividadSeg'] ?? 0);
+            $av = (int) ($x['avisoSeg'] ?? 0);
+            if ($n < 1 || $n > 48) {
+                $this->malo("$rol: la cantidad máxima de ciclos debe estar entre 1 y 48.");
+            }
+            if ($in < 30 || $in > 1800) {
+                $this->malo("$rol: la inactividad máxima debe estar entre 30 segundos y 30 minutos.");
+            }
+            if ($av < 10 || $av > 120 || $av >= $in) {
+                $this->malo("$rol: el aviso previo debe estar entre 10 y 120 segundos y ser menor que la inactividad.");
+            }
+            $porRol[$rol] = ['maxCiclos' => $n, 'inactividadSeg' => $in, 'avisoSeg' => $av];
+            $mayor = max($mayor, $n);
         }
-        $this->ok(['tokenMin' => $t, 'maxIntentos' => $i, 'bloqueoSeg' => $s], 200, true);
+        // Keycloak: el acceso se renueva cada ciclo; su sesión absoluta deja un ciclo de margen sobre el rol más largo
+        $maxSesion = ($mayor + 1) * $c * 60;
+        if (!Keycloak::actualizarRealm(['accessTokenLifespan' => $c * 60, 'failureFactor' => $i, 'waitIncrementSeconds' => $s,
+            'ssoSessionMaxLifespan' => $maxSesion, 'ssoSessionIdleTimeout' => min(max(1800, 2 * $c * 60), $maxSesion)])) {
+            $this->responder(502, ['error' => 'idp_error', 'detalle' => 'No se pudo aplicar el cambio.']);
+        }
+        Sesiones::guardar($porRol);
+        $this->ok(['cicloMin' => $c, 'maxIntentos' => $i, 'bloqueoSeg' => $s, 'roles' => $porRol], 200, true);
     }
 }

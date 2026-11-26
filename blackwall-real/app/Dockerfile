@@ -11,7 +11,7 @@ RUN apt-get update \
  && docker-php-ext-configure ldap --with-libdir="lib/$(dpkg-architecture -q DEB_BUILD_MULTIARCH)" \
  && docker-php-ext-install -j"$(nproc)" ldap \
  && rm -rf /var/lib/apt/lists/* \
- && a2enmod ssl rewrite headers \
+ && a2enmod ssl rewrite headers deflate \
  && a2dissite 000-default \
  && sed -i 's/^Listen 80$/#Listen 80/' /etc/apache2/ports.conf
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"

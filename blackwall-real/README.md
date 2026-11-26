@@ -8,7 +8,7 @@ Gestión de incidentes con identificación, autenticación y autorización **rea
 | Proveedor de identidad | **Keycloak 26.8** en HTTPS, realm `proyecto-accesos`, TOTP | `keycloak/configurar.py` |
 | Aplicación + API | **PHP 8.3 + Apache** en HTTPS, `firebase/php-jwt` (JWKS) | `app/` |
 | HTTPS en todo | CA propia + certificados con `openssl` | `scripts/preparar.sh` |
-| Pruebas CP-xx (27) | Python (login real con PKCE y TOTP) | `pruebas/casos_prueba.py` |
+| Pruebas CP-xx (31) | Python (login real con PKCE y TOTP) | `pruebas/casos_prueba.py` |
 | Escaneo | **OWASP ZAP** (Docker) | `pruebas/zap_escaneo.py` |
 | Verificar el cifrado | `tcpdump` + `tshark` (los `.pcap` abren en Wireshark) | `scripts/captura.sh` |
 
@@ -83,7 +83,7 @@ Matriz (`ROL_*` → scopes) en `keycloak/configurar.py` (`ROLES`), única fuente
 ## Pruebas, ZAP y captura de red
 
 ```bash
-scripts/bw.sh pruebas                          # 27 casos CP-xx contra el sistema real → evidencias/resultados-pruebas.md
+scripts/bw.sh pruebas                          # 31 casos CP-xx contra el sistema real → evidencias/resultados-pruebas.md
 python3 pruebas/zap_escaneo.py <etiqueta>      # escaneo ZAP autenticado y sin sesión → evidencias/zap-<etiqueta>.*
 scripts/captura.sh --auto                      # tcpdump del login + búsqueda de claves/tokens → evidencias/captura-login.txt
 ```
@@ -102,9 +102,11 @@ Interfaz en un navegador real (capturas para el informe): `pruebas/ui_capturas.c
 | Eventos de Keycloak ausentes en la auditoría | CP-02/CP-24 | Keycloak 26.8 exige el scope `kc-admin-api` (audiencia propia) en su API de administración | Se agregó el scope a la cuenta de servicio, con roles mínimos y `fullScopeAllowed=false` |
 | Errores de PHP visibles en las respuestas | CP-02 | La imagen `php:apache` no trae `php.ini` (`display_errors` activo) | `php.ini-production` + `display_errors=Off`, `expose_php=Off` |
 | Usuarios listados todos como «cuenta de servicio» | Revisión de la interfaz → CP-26 | La detección recorría mal las clases de objeto del LDAP | Se recorren por índice; CP-26 lo cubre |
+| La pantalla Configuración no guardaba nada | CP-28 a CP-31 (al probar la sesión por ciclos) | La app reenviaba todo el realm a Keycloak y PHP convertía `{}` en `[]` | Se envían solo los campos que cambian |
+| Pestaña Usuarios lenta (≈0,5 s) | Medición | 3 consultas a Keycloak por persona en cada visita | Caché de 30 s que se borra al modificar usuarios; estáticos comprimidos y con caché |
 | Librería JWT con aviso de seguridad | `composer install` | `firebase/php-jwt` 6.x tiene un advisory | Se usa la 7.x |
 
-Resultados completos: `evidencias/resultados-pruebas-antes.md` (20/25) → `evidencias/resultados-pruebas-final.md` (27/27).
+Resultados completos: `evidencias/resultados-pruebas-antes.md` (20/25) → `evidencias/resultados-pruebas-final.md` (31/31).
 
 ### OWASP ZAP: antes → después
 

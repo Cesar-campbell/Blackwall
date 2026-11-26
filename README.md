@@ -12,7 +12,7 @@ Aplicación web de **gestión de incidentes de seguridad** con identificación, 
 
 ## Qué incluye
 
-- `blackwall-real/` — la aplicación y su infraestructura (Docker Compose: OpenLDAP + Keycloak + PostgreSQL + app PHP), configuración reproducible de Keycloak, **27 pruebas de seguridad**, escaneo OWASP ZAP, captura de red y evidencias.
+- `blackwall-real/` — la aplicación y su infraestructura (Docker Compose: OpenLDAP + Keycloak + PostgreSQL + app PHP), configuración reproducible de Keycloak, **31 pruebas de seguridad**, escaneo OWASP ZAP, captura de red y evidencias.
 - `servidor-blackwall/` — para dejar la aplicación **accesible desde internet** desde tu propia laptop (túnel gratuito, arranque automático, apagado y borrado con un comando).
 - `blackwall-real/docs/Guia-Tecnica-Blackwall.pdf` — guía técnica con capturas, protocolos, funciones y glosario.
 - `RESUMEN.md` — estado del proyecto.
@@ -47,7 +47,7 @@ Los secretos se generan al instalar y quedan **fuera del repositorio** (`~/.loca
 
 ```bash
 cd blackwall-real
-scripts/bw.sh pruebas        # 27 casos contra el sistema real
+scripts/bw.sh pruebas        # 31 casos contra el sistema real
 ```
 
 Resultados en `blackwall-real/evidencias/` (tabla de pruebas, OWASP ZAP antes y después, captura de red, capturas de la interfaz). Más detalle en [`blackwall-real/README.md`](blackwall-real/README.md) y [`blackwall-real/SIMULADO-VS-REAL.md`](blackwall-real/SIMULADO-VS-REAL.md).

@@ -9,6 +9,7 @@ use Blackwall\Config;
 use Blackwall\Db;
 use Blackwall\Oidc;
 use Blackwall\Sesion;
+use Blackwall\Sesiones;
 use Blackwall\TokenInvalido;
 use Blackwall\Tokens;
 
@@ -39,6 +40,23 @@ function establecer(array $t, array $access, ?array $id): void
         'grupos' => array_values((array) ($access['groups'] ?? [])),
         'scopes' => array_values(array_filter(explode(' ', (string) ($access['scope'] ?? '')), fn($s) => str_contains($s, ':'))),
     ];
+}
+
+/** Cierra la sesión por una regla del servidor (inactividad o ciclos): revoca en Keycloak, anula la sesión y avisa al navegador. */
+function cerrar_sesion(string $motivo): never
+{
+    $u = $_SESSION['u'] ?? ['usuario' => '?', 'sub' => null];
+    if (!empty($_SESSION['tok']['refresh'])) {
+        try {
+            Oidc::revocar($_SESSION['tok']['refresh']);
+        } catch (\Throwable) {
+        }
+    }
+    if (!empty($_SESSION['sid'])) {
+        Sesiones::cerrar($_SESSION['sid'], $motivo, $u['usuario'], $u['sub']);
+    }
+    Sesion::destruir();
+    json_salida(401, ['error' => 'unauthorized', 'motivo' => $motivo, 'detalle' => $motivo === 'inactividad' ? 'Tu sesión se cerró por inactividad.' : 'Alcanzaste el tiempo máximo de sesión.']);
 }
 
 Sesion::iniciar();
@@ -105,6 +123,8 @@ switch ($ruta) {
         session_regenerate_id(true);    // evita fijación de sesión
         $_SESSION = ['flujo' => $flujo, 'csrf' => bin2hex(random_bytes(24))];
         establecer($t, $access, $id);
+        $_SESSION['sid'] = (string) ($access['sid'] ?? bin2hex(random_bytes(8)));
+        Sesiones::registrar($_SESSION['sid'], (string) ($access['preferred_username'] ?? '?'), (string) ($_SESSION['u']['roles'][0] ?? ''));
         Db::auditar($access['preferred_username'] ?? '?', $access['sub'], 'LOGIN', 'ALLOW', implode(',', $_SESSION['u']['roles']));
         header('Location: /');
         break;
@@ -113,8 +133,15 @@ switch ($ruta) {
         if (empty($_SESSION['u'])) {
             json_salida(401, ['error' => 'unauthorized', 'detalle' => 'No hay sesión.']);
         }
+        $sid = (string) ($_SESSION['sid'] ?? '');
+        if ($sid !== '' && ($m = Sesiones::evaluar($sid, $_SESSION['u']['usuario'], $_SESSION['u']['sub'], false)) !== null) {
+            cerrar_sesion($m);
+        }
         $forzar = isset($_GET['renovar']);
         if ($forzar || $_SESSION['tok']['exp'] - time() < 30) {
+            if ($sid !== '' && ($m = Sesiones::renovar($sid, $_SESSION['u']['usuario'], $_SESSION['u']['sub'])) !== null) {
+                cerrar_sesion($m);   // se agotaron los ciclos (o hubo inactividad): hay que iniciar sesión de nuevo
+            }
             $n = Oidc::renovar($_SESSION['tok']['refresh']);
             try {
                 $access = $n ? Tokens::verificar($n['access_token'], 'Bearer') : null;
@@ -136,6 +163,27 @@ switch ($ruta) {
             'access_token' => $_SESSION['tok']['access'], 'exp' => $_SESSION['tok']['exp'], 'csrf' => $_SESSION['csrf'],
         ]);
 
+    case '/auth/actividad':   // el navegador avisa que hubo actividad real (clics, teclas); también devuelve los tiempos
+        if ($metodo !== 'POST') {
+            json_salida(405, ['error' => 'method_not_allowed']);
+        }
+        if (empty($_SESSION['u']) || !hash_equals($_SESSION['csrf'] ?? '', $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '')) {
+            json_salida(401, ['error' => 'unauthorized']);
+        }
+        if (($m = Sesiones::evaluar((string) $_SESSION['sid'], $_SESSION['u']['usuario'], $_SESSION['u']['sub'], true)) !== null) {
+            cerrar_sesion($m);
+        }
+        json_salida(200, Sesiones::estado((string) $_SESSION['sid']));
+
+    case '/auth/estado':      // consulta de tiempos; NO cuenta como actividad
+        if (empty($_SESSION['u'])) {
+            json_salida(401, ['error' => 'unauthorized']);
+        }
+        if (($m = Sesiones::evaluar((string) $_SESSION['sid'], $_SESSION['u']['usuario'], $_SESSION['u']['sub'], false)) !== null) {
+            cerrar_sesion($m);
+        }
+        json_salida(200, Sesiones::estado((string) $_SESSION['sid']));
+
     case '/auth/logout':
         if ($metodo !== 'POST') {
             json_salida(405, ['error' => 'method_not_allowed']);
@@ -143,6 +191,7 @@ switch ($ruta) {
         if (empty($_SESSION['u']) || !hash_equals($_SESSION['csrf'] ?? '', $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '')) {
             json_salida(403, ['error' => 'forbidden', 'detalle' => 'Token CSRF inválido.']);
         }
+        Sesiones::cerrar((string) ($_SESSION['sid'] ?? ''), 'logout');
         $revocado = Oidc::revocar($_SESSION['tok']['refresh']);   // revoca la sesión en el IdP
         Db::auditar($_SESSION['u']['usuario'], $_SESSION['u']['sub'], 'LOGOUT', 'ALLOW', $revocado ? 'sesión revocada en Keycloak y en la app' : 'sesión local cerrada (el IdP no confirmó)');
         $destino = Oidc::urlCierreSesion($_SESSION['tok']['id']);

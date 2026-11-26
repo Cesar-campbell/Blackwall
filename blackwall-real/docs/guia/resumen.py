@@ -180,12 +180,27 @@ sec("10", "Matriz de roles y permisos", f"""
     ["<code>GET · PUT /api/casos/{id}</code>", "<code>casos:leer</code> / <code>escribir</code> (o <code>_propios</code>)", "200 · 403 · 404"],
     ["<code>DELETE /api/casos/{id}</code>", "<code>casos:borrar</code>", "200 · 403"],
     ["<code>/api/usuarios…</code>", "<code>usuarios:leer</code> (lectura) · <code>usuarios:admin</code> (cambios)", "200/201 · 400 · 403"],
-    ["<code>GET /api/auditoria</code> · <code>/api/config</code>", "<code>auditoria:leer</code> · <code>config:admin</code>", "200 · 403"],
+    ["<code>GET /api/auditoria</code> · <code>/api/config</code>", "<code>auditoria:leer</code> · <code>config:admin</code> (política de sesión por rol)", "200 · 400 · 403"],
 ], anchos=["34%", "44%", "22%"])}
 """)
 
+
+sec("11", "Sesión por ciclos e inactividad (por rol)", f"""
+<p>Antes, “duración de la sesión” solo era la vida del token: se renovaba sola y nunca cerraba la sesión. Ahora <b>el servidor</b> controla cuánto vive cada sesión, y el administrador lo define <b>por rol</b> en Configuración.</p>
+{tabla(["Opción", "Qué significa", "Alcance"], [
+    ["<b>Duración de cada ciclo</b>", "Cada cuánto se renueva el acceso (5 a 15 min)", "General"],
+    ["<b>Ciclos máximos</b>", "Cuántas renovaciones se permiten; al agotarlas hay que volver a iniciar sesión (con MFA)", "Por rol"],
+    ["<b>Inactividad máxima</b>", "Si no hay actividad real durante este tiempo (de 30 s a 30 min), la sesión se cierra", "Por rol"],
+    ["<b>Aviso previo</b>", "Segundos antes de cerrar en que aparece “¿Sigues ahí?” con <b>Seguir conectado</b>", "Por rol"],
+    ["Intentos fallidos y bloqueo", "Los controla Keycloak para todo el sistema", "General"],
+], anchos=["24%", "62%", "14%"])}
+{img_ev("admin-config-rol.png", "Configuración (solo el administrador): se elige el rol y se ven y cambian sus valores", [(57.5, 28.5, "Duración de cada ciclo, igual para todos."), (57.5, 37, "Intentos fallidos y bloqueo (también generales)."), (97.5, 28.4, "<b>Desplegable de roles</b>: al elegir uno se cargan sus valores actuales."), (97.5, 37, "Ciclos máximos del rol."), (97.5, 46, "Inactividad máxima, en minutos y segundos."), (97.5, 59, "Sesión máxima resultante (ciclos × duración).")], "84%")}
+{img_ev("usuario-aviso.png", "Aviso antes de cerrar la sesión por inactividad", [(71, 45, "Cuenta regresiva hasta el cierre."), (47, 54, "<b>Seguir conectado</b> cuenta como actividad.")], "70%")}
+<ul><li><b>Quién decide es el servidor:</b> guarda la última actividad real de cada sesión; las consultas automáticas de la pantalla no cuentan.</li><li><b>Cierre inmediato:</b> una sesión cerrada deja de servir aunque su token no haya vencido.</li><li>Cada cierre queda en la auditoría como <code>SESION_EXPIRADA</code>. Pruebas: CP-28 a CP-31.</li><li>Solo el rol con el permiso <code>config:admin</code> (el administrador) ve y cambia esta pantalla.</li></ul>
+""")
+
 # 11 ---------------------------------------------------------------------------------------------
-sec("11", "El código: qué hace cada parte", f"""
+sec("12", "El código: qué hace cada parte", f"""
 {tabla(["Archivo / función", "Qué hace"], [
     ["<code>Tokens::verificar()</code>", "<b>El guardia</b>: exige RS256, verifica la firma con JWKS y comprueba <code>exp</code>, <code>iss</code>, <code>aud</code>, <code>typ</code> y <code>nonce</code>"],
     ["<code>Oidc::urlLogin()</code> · <code>intercambiar()</code>", "Crea PKCE, <code>state</code> y <code>nonce</code>; cambia el código por tokens con el <code>code_verifier</code>"],
@@ -193,6 +208,8 @@ sec("11", "El código: qué hace cada parte", f"""
     ["<code>Api::autenticar()</code> · <code>exigir()</code>", "Valida el Bearer (401) y comprueba el permiso (403)"],
     ["<code>Api::enrutar()</code>", "Tabla de rutas permitidas; lo demás → 404 (denegar por defecto)"],
     ["<code>Api::esMio()</code>", "Control por propiedad con el <code>sub</code> del token"],
+    ["<code>Sesiones::evaluar()</code> · <code>renovar()</code>", "Cuentan ciclos y actividad <b>por rol</b>; cierran la sesión por inactividad o por ciclos agotados y lo registran; el cierre es inmediato"],
+    ["<code>index.php</code> <code>/auth/actividad</code> · <code>/auth/estado</code>", "El navegador avisa de la actividad real y consulta los tiempos para mostrar el aviso previo"],
     ["<code>Ldap::crear / actualizar / eliminar</code>", "Administran usuarios y grupos en el directorio"],
     ["<code>Keycloak::eventos()</code>", "Trae inicios de sesión, fallos y bloqueos para la auditoría"],
     ["<code>Db::auditar()</code>", "Registra usuario, acción, permitido/denegado e IP real"],
@@ -206,13 +223,13 @@ sec("11", "El código: qué hace cada parte", f"""
 # 12 ---------------------------------------------------------------------------------------------
 res = json.load(open(os.path.join(RAIZ, "evidencias", "resultados-pruebas-final.json")))
 filas = [[c["id"], c["caso"], c["actor"], "<span class='pill ok'>Pasa</span>" if c["ok"] else "<span class='pill no'>Falla</span>"] for c in res["casos"]]
-sec("12", f"Pruebas de seguridad: {res['pasan']} de {res['total']} pasan", f"""
-<p>CP-01 a CP-10 son los de la guía; CP-11 a CP-27 los agregamos. Se ejecutan contra el sistema real, con login, PKCE y TOTP incluidos: <code>scripts/bw.sh pruebas</code>.</p>
+sec("13", f"Pruebas de seguridad: {res['pasan']} de {res['total']} pasan", f"""
+<p>CP-01 a CP-10 son los de la guía; CP-11 a CP-31 los agregamos. Se ejecutan contra el sistema real, con login, PKCE y TOTP incluidos: <code>scripts/bw.sh pruebas</code>.</p>
 {tabla(["ID", "Caso", "Rol / actor", "Estado"], filas, anchos=["9%", "58%", "21%", "12%"])}
 """)
 
 # 13 ---------------------------------------------------------------------------------------------
-sec("13", "OWASP ZAP y captura de red", f"""
+sec("14", "OWASP ZAP y captura de red", f"""
 {img("zap-antes.png", "ZAP ANTES: 0 altas · 2 medias · 4 bajas", "62%")}
 {img("zap-despues.png", "ZAP DESPUÉS: 0 altas · 0 medias · 0 bajas", "62%")}
 {tabla(["Hallazgo", "Corrección"], [
@@ -220,14 +237,14 @@ sec("13", "OWASP ZAP y captura de red", f"""
     ["XSS en JSON · versión visible · sin HSTS · sin <code>nosniff</code> (bajas)", "JSON escapado, <code>ServerTokens Prod</code>, HSTS y <code>nosniff</code>"],
 ], anchos=["50%", "50%"])}
 """)
-sec("13b", "Verificación del cifrado (captura de red)", f"""
+sec("14b", "Verificación del cifrado (captura de red)", f"""
 <p>Se capturó un login real con <b>tcpdump</b> y se analizó con <b>tshark</b> (Wireshark en consola). El <code>.pcap</code> abre en Wireshark.</p>
 {term("captura-login", "Con HTTPS: 0 contraseñas y 0 tokens en claro. El control sin TLS sí los muestra")}
 {term("db-tls", "La base de datos solo acepta conexiones cifradas")}
 """)
 
 # 14 ---------------------------------------------------------------------------------------------
-sec("14", "Hallazgos corregidos y antes/después", f"""
+sec("15", "Hallazgos corregidos y antes/después", f"""
 {tabla(["Hallazgo", "Detectado por", "Corrección"], [
     ["<b>El auditor podía modificar casos</b> (escalada de privilegios)", "CP-07", "Se eliminó un rol compuesto compartido que le daba permisos del admin"],
     ["El cambio de duración del token no tenía efecto", "CP-03", "Un atributo del cliente pisaba el valor del realm"],
@@ -248,13 +265,13 @@ sec("14", "Hallazgos corregidos y antes/después", f"""
 """)
 
 # 15 ---------------------------------------------------------------------------------------------
-sec("15", "Cumplimiento de la rúbrica", f"""
+sec("16", "Cumplimiento de la rúbrica", f"""
 {tabla(["Criterio (peso)", "Estado", "Evidencia"], [
     ["Nomenclatura (15%)", "<span class='pill ok'>Cumple</span>", "Sección 3, sin excepciones"],
     ["Autenticación OAuth/OIDC (25%)", "<span class='pill ok'>Cumple</span>", "PKCE, validación de tokens, MFA, HTTPS, logout · CP-01, 03, 04, 11–18"],
     ["Directorio (15%)", "<span class='pill ok'>Cumple</span>", "LDAP como fuente única, mapeo automático, política · CP-22, 23, 27"],
     ["Autorización (20%)", "<span class='pill ok'>Cumple</span>", "Matriz, mínimo privilegio, denegar por defecto, propiedad · CP-05 a 08, 19 a 21"],
-    ["Pruebas y evidencias (10%)", "<span class='pill ok'>Cumple</span>", "27 casos, ZAP antes/después, captura de red"],
+    ["Pruebas y evidencias (10%)", "<span class='pill ok'>Cumple</span>", "31 casos, ZAP antes/después, captura de red"],
     ["Herramientas (5%)", "<span class='pill ok'>Cumple</span>", "Sección 3 (licencia, costo, alternativas)"],
     ["Informe (10%)", "<span class='pill al'>Pendiente</span>", "Lo redacta la compañera con esta guía"],
 ], anchos=["32%", "14%", "54%"])}
@@ -270,7 +287,7 @@ sec("15", "Cumplimiento de la rúbrica", f"""
 """)
 
 # 16 ---------------------------------------------------------------------------------------------
-sec("16", "Demostración y reparto de temas", f"""
+sec("17", "Demostración y reparto de temas", f"""
 <h2>Guion de la demostración en vivo</h2>
 <ol><li><b>Inicio de sesión con cada rol</b> (admin y auditor con TOTP): mostrar cómo cambia el menú.</li><li><b>Intento denegado:</b> con el analista, abrir <code>#config</code> → 403.</li><li><b>Control por propiedad:</b> con <code>ejemplo.usuario</code>, solo aparecen sus casos.</li><li><b>Auditoría:</b> con el auditor, ver el 403 recién generado y los inicios de sesión (incluidos los de otros usuarios).</li><li><b>Bloqueo:</b> cinco claves incorrectas y desbloqueo desde Usuarios.</li></ol>
 <h2>Reparto sugerido (todos deben dominar todo)</h2>
@@ -278,9 +295,9 @@ sec("16", "Demostración y reparto de temas", f"""
     ["1. Visión, arquitectura y Docker", "1, 2", "Qué hace la app, qué corre en cada contenedor, dónde se guarda cada dato"],
     ["2. Directorio y nomenclatura", "3, 7", "Por qué OpenLDAP, cómo se guardan las contraseñas, OU y grupos"],
     ["3. Keycloak y autenticación", "4, 5, 6, 8", "OIDC, PKCE, state, nonce, por qué la app no ve la contraseña, TOTP"],
-    ["4. Autorización y código", "9, 10, 11", "RBAC, scope, denegar por defecto, control por propiedad"],
-    ["5. Pruebas, ZAP y red", "12, 13, 14", "Qué prueba cada CP, qué encontró ZAP, cómo se verificó el cifrado"],
-    ["6. Informe y herramientas", "3, 15", "Por qué estas herramientas, qué falta en la rúbrica, qué cambiar en producción"],
+    ["4. Autorización, sesiones y código", "9, 10, 11, 12", "RBAC, scope, denegar por defecto, control por propiedad"],
+    ["5. Pruebas, ZAP y red", "13, 14, 15", "Qué prueba cada CP, qué encontró ZAP, cómo se verificó el cifrado"],
+    ["6. Informe y herramientas", "3, 16", "Por qué estas herramientas, qué falta en la rúbrica, qué cambiar en producción"],
 ], anchos=["27%", "13%", "60%"])}
 <h2>Para producción cambiarían</h2>
 <ul><li>Gestor de secretos con rotación y certificados de una CA pública.</li><li>Auditoría centralizada de solo-anexar (SIEM) y copias de seguridad del proveedor de identidad.</li><li>Alta disponibilidad de Keycloak y del directorio, e imagen de OpenLDAP mantenida.</li></ul>
@@ -300,7 +317,7 @@ G = [("Access token", "Token de 5 min que la app envía a la API para probar qui
      ("Refresh token", "Permite pedir otro access token; rota en cada uso."), ("redirect_uri", "Dirección de regreso tras el login; debe coincidir exacta."), ("RS256", "Firma RSA con SHA-256; se verifica con clave pública."),
      ("Scope", "Permiso <code>recurso:acción</code> dentro del token."), ("state", "Une la respuesta de Keycloak con la solicitud (anti-CSRF)."), ("sub", "Identificador único e inmutable del usuario."),
      ("TLS", "Cifrado del canal (la “S” de HTTPS)."), ("TOTP", "Código de 6 dígitos que cambia cada 30 s."), ("XSS", "Inyección de scripts maliciosos en una página."), ("ZAP", "Escáner de seguridad web de OWASP.")]
-sec("17", "Glosario", tabla(["Término", "Significado"], [[f"<b>{a}</b>", b] for a, b in G], anchos=["22%", "78%"]))
+sec("18", "Glosario", tabla(["Término", "Significado"], [[f"<b>{a}</b>", b] for a, b in G], anchos=["22%", "78%"]))
 
 
 # ------------------------------------------------------------------------------------------------
@@ -310,7 +327,7 @@ def etiqueta(n):
 
 def construir(pags):
     toc = "".join(f'<div class="row"><b>{n}</b><span class="t">{t}</span><span class="p">{pags.get(n, "")}</span></div>' for n, t, _ in S if not re.search(r"\d[bc]$", n))
-    SALTOS = {"7", "8", "9", "13", "13b"}
+    SALTOS = {"7", "8", "9", "14", "14b"}
     cuerpo = "".join(f'<section class="sec{" salto" if n in SALTOS else ""}"><h1>{etiqueta(n)}. {t}</h1>{h}</section>' for n, t, h in S)
     return f"""<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Blackwall · Guía resumida</title><style>{CSS}{EXTRA}</style></head><body>
 <div class="cover"><div class="lg">{LOGO}BLACKWALL</div>

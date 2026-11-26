@@ -32,6 +32,8 @@ const DESC = {
 };
 const SEV = ['baja', 'media', 'alta', 'critica'], EST = ['abierto', 'en_analisis', 'resuelto'];
 const MSG_LOGIN = 'No se pudo iniciar sesión. Inténtalo de nuevo.';
+const MSG_CIERRE = { inactividad: 'Tu sesión se cerró por inactividad. Inicia sesión de nuevo.', ciclos: 'Alcanzaste el tiempo máximo de sesión. Inicia sesión de nuevo.' };
+const expulsar = motivo => location.replace('/?e=' + (MSG_CIERRE[motivo] ? motivo : 'sesion'));
 
 /* ---------- Sesión y llamadas a la API ---------- */
 const S = { ses: null, tok: null, exp: 0, view: 'inicio' };
@@ -51,9 +53,9 @@ async function token() {
   if (!S.tok || S.exp - Date.now() / 1000 < 20) { if (!await pedirSesion()) throw { status: 401, body: { detalle: 'Tu sesión expiró.' } }; }
   return S.tok;
 }
-async function call(m, p, b) {
+async function call(m, p, b, auto = false) {
   let t; try { t = await token(); } catch (e) { return e; }
-  const r = await fetch('/api' + p, { method: m, headers: { Authorization: 'Bearer ' + t, ...(b ? { 'Content-Type': 'application/json' } : {}) }, body: b ? JSON.stringify(b) : undefined });
+  const r = await fetch('/api' + p, { method: m, headers: { Authorization: 'Bearer ' + t, ...(auto ? { 'X-Auto': '1' } : {}), ...(b ? { 'Content-Type': 'application/json' } : {}) }, body: b ? JSON.stringify(b) : undefined });
   let body = null; try { body = await r.json(); } catch { /* sin cuerpo */ }
   return { status: r.status, body };
 }
@@ -87,7 +89,7 @@ function barras() { document.querySelectorAll('[data-w]').forEach(i => { i.style
 /* ---------- Arranque y navegación ---------- */
 async function arrancar() {
   const e = new URLSearchParams(location.search).get('e');
-  if (e) $('#lerr').innerHTML = `<div class="err">${esc(MSG_LOGIN)}</div>`;
+  if (e) $('#lerr').innerHTML = `<div class="err${MSG_CIERRE[e] ? ' ok' : ''}">${esc(MSG_CIERRE[e] || MSG_LOGIN)}</div>`;
   if (await pedirSesion()) { history.replaceState(null, '', '/'); entrarApp(); }
 }
 function entrarApp() {
@@ -101,9 +103,9 @@ function entrarApp() {
 }
 async function render() {
   const v = VIEWS[S.view] ? S.view : 'inicio'; $('#vtitle').textContent = TITULO[v] || '';
-  try { $('#view').innerHTML = await VIEWS[v](); barras(); }
+  try { $('#view').innerHTML = await VIEWS[v](); barras(); if (v === 'config') cargarRolCfg(); }
   catch (e) {
-    if (e.status === 401) { location.replace('/'); return; }
+    if (e.status === 401) { expulsar(e.body?.motivo); return; }
     $('#view').innerHTML = e.status === 403
       ? `<div class="card denied"><div class="big">403</div><h2>Acceso denegado</h2><p class="mut mt1">${esc(e.body.detalle)}. El intento quedó registrado en la auditoría.</p><button class="btn mt" data-v="inicio">Volver al inicio</button></div>`
       : `<div class="card denied"><h2>Algo salió mal</h2><p class="mut">${esc(e.body?.detalle || 'Error inesperado')}</p></div>`;
@@ -154,8 +156,13 @@ const VIEWS = {
       `<div class="card"><div class="tools"><input id="aq" placeholder="Buscar por usuario o evento…"><select id="ar"><option value="">Todos los resultados</option><option value="ALLOW">Permitidos</option><option value="DENY">Denegados</option></select></div><div class="tw"><table><thead><tr><th>Hora</th><th>Usuario</th><th>Evento</th><th>Resultado</th><th>Detalle</th></tr></thead><tbody id="atb">${filasAud()}</tbody></table></div></div>`;
   },
   async config() {
-    const c = must(await call('GET', '/config')).body;
-    return head('Configuración', 'Parámetros de seguridad del sistema.') + `<div class="card maxw"><label for="cT">Duración de la sesión activa (minutos, entre 5 y 15)</label><input id="cT" type="number" min="5" max="15" value="${c.tokenMin}"><label for="cI">Intentos fallidos antes de bloquear</label><input id="cI" type="number" min="3" max="10" value="${c.maxIntentos}"><label for="cB">Duración del bloqueo (segundos)</label><input id="cB" type="number" min="10" max="3600" value="${c.bloqueoSeg}"><button class="btn mt" data-a="guardarcfg">Guardar cambios</button></div>`;
+    const c = must(await call('GET', '/config')).body; S.cfg = c; S.cfgRoles = JSON.parse(JSON.stringify(c.roles)); if (!c.roles[S.cfgRol]) S.cfgRol = Object.keys(c.roles)[0];   // al guardar se conserva el rol que se estaba viendo
+    return head('Configuración', 'Parámetros de seguridad del sistema.') +
+      `<div class="g2"><div class="card"><h3>General</h3><label for="cT">Duración de cada ciclo (minutos, entre 5 y 15)</label><input id="cT" type="number" min="5" max="15" value="${c.cicloMin}"><label for="cI">Intentos fallidos antes de bloquear</label><input id="cI" type="number" min="3" max="10" value="${c.maxIntentos}"><label for="cB">Duración del bloqueo (segundos)</label><input id="cB" type="number" min="10" max="3600" value="${c.bloqueoSeg}"></div>
+      <div class="card"><h3>Sesión por rol</h3><label for="cRol">Rol</label><select id="cRol">${Object.keys(c.roles).map(r => `<option value="${r}">${RL[r]}</option>`).join('')}</select>
+      <label for="cC">Ciclos máximos</label><input id="cC" type="number" min="1" max="48"><div class="dos"><div><label for="cM">Inactividad (minutos)</label><input id="cM" type="number" min="0" max="30"></div><div><label for="cS">y segundos</label><input id="cS" type="number" min="0" max="59"></div></div>
+      <label for="cA">Aviso previo (segundos)</label><input id="cA" type="number" min="10" max="120"><p class="sm mut mt1">Sesión máxima de este rol: <b id="cTot"></b>. Al agotar los ciclos, o tras ese tiempo sin actividad, la sesión se cierra.</p></div></div>
+      <button class="btn mt" data-a="guardarcfg">Guardar cambios</button> <span class="sm mut">Se guardan juntos los cambios de todos los roles.</span>`;
   },
   async cuenta() {
     const s = S.ses, r = rol(), obl = r === 'ROL_ADMIN' || r === 'ROL_AUDITOR';
@@ -197,6 +204,24 @@ async function abrirCaso(id) {
   <div class="mt2"><button class="btn sec" data-a="cerrar">Cerrar</button></div>`);
 }
 
+function cargarRolCfg() {
+  const x = S.cfgRoles[S.cfgRol];
+  $('#cRol').value = S.cfgRol; $('#cC').value = x.maxCiclos; $('#cM').value = Math.floor(x.inactividadSeg / 60); $('#cS').value = x.inactividadSeg % 60; $('#cA').value = x.avisoSeg;
+  totalesCfg();
+}
+function guardarRolCfg() {   // conserva en memoria lo escrito para el rol que se está viendo
+  if (!S.cfgRoles || !$('#cC')) return;
+  S.cfgRoles[S.cfgRol] = { maxCiclos: +$('#cC').value, inactividadSeg: (+$('#cM').value) * 60 + (+$('#cS').value), avisoSeg: +$('#cA').value };
+}
+function totalesCfg() {
+  const m = +($('#cC')?.value || 0) * +($('#cT')?.value || 0), h = Math.floor(m / 60);
+  if ($('#cTot')) $('#cTot').textContent = (h ? h + ' h ' : '') + (m % 60) + ' min';
+}
+function leerCfg() {
+  guardarRolCfg();
+  return { cicloMin: +$('#cT').value, maxIntentos: +$('#cI').value, bloqueoSeg: +$('#cB').value, roles: S.cfgRoles };
+}
+
 /* ---------- Sesión: salir ---------- */
 async function salir() {
   try {
@@ -212,6 +237,8 @@ async function salir() {
 $('#side').onclick = e => { const b = e.target.closest('button'); if (b) { location.hash = b.dataset.v; if (S.view === b.dataset.v) go(b.dataset.v); } };
 $('#bOut').onclick = () => salir();
 document.addEventListener('input', e => {
+  if (['cC', 'cM', 'cS', 'cA', 'cT'].includes(e.target.id)) { guardarRolCfg(); totalesCfg(); }
+  if (e.target.id === 'cRol') { guardarRolCfg(); S.cfgRol = e.target.value; cargarRolCfg(); }
   if (e.target.id === 'fq' || e.target.id === 'fe') $('#tb').innerHTML = filasCasos();
   if (e.target.id === 'aq' || e.target.id === 'ar') $('#atb').innerHTML = filasAud();
 });
@@ -236,15 +263,46 @@ document.addEventListener('click', async e => {
   if (a === 'udel' && confirm('¿Eliminar al usuario ' + id + '?')) done(await call('DELETE', '/usuarios/' + enc(id)), 'Usuario eliminado');
   if (a === 'unlock') done(await call('POST', `/usuarios/${enc(id)}/desbloquear`), 'Cuenta desbloqueada');
   if (a === 'recargar') render();
-  if (a === 'guardarcfg') done(await call('PUT', '/config', { tokenMin: +$('#cT').value, maxIntentos: +$('#cI').value, bloqueoSeg: +$('#cB').value }), 'Configuración guardada');
+  if (a === 'guardarcfg') done(await call('PUT', '/config', leerCfg()), 'Configuración guardada');
+  if (a === 'seguir') { await enviarActividad(true); closeM(); }
   if (a === 'salir') salir();
 });
 
 /* Auditoría en vivo: se actualiza sola cada pocos segundos mientras está abierta (sin perder lo escrito en los filtros) */
 setInterval(async () => {
   if (!S.ses || S.view !== 'auditoria' || !$('#atb') || document.hidden || !$('#modal').hidden) return;
-  const r = await call('GET', '/auditoria');
+  const r = await call('GET', '/auditoria', undefined, true);
   if (r.status === 200) { S.audData = r.body; $('#atb').innerHTML = filasAud(); }
 }, 5000);
+
+/* Actividad real del usuario: se avisa al servidor (que es quien decide) y se muestra un aviso antes de cerrar */
+let huboActividad = false, finAviso = 0;
+['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(ev => document.addEventListener(ev, () => { huboActividad = true; }, { passive: true }));
+async function enviarActividad(forzar = false) {
+  if (!S.ses || (!huboActividad && !forzar)) return;
+  huboActividad = false;
+  try {
+    const r = await fetch('/auth/actividad', { method: 'POST', headers: { 'X-CSRF-Token': S.ses.csrf }, credentials: 'same-origin' });
+    if (r.status === 401) { const j = await r.json().catch(() => ({})); expulsar(j.motivo); return; }
+    finAviso = 0;
+  } catch { /* sin conexión: el servidor decide */ }
+}
+function mostrarAviso(seg) {
+  finAviso = Date.now() + seg * 1000;
+  if (!$('#avisoSeg')) modal(`<h3 class="mb1">¿Sigues ahí?</h3><p>Tu sesión se cerrará por inactividad en <b id="avisoSeg">${seg}</b> s.</p><div class="fx mt"><button class="btn" data-a="seguir">Seguir conectado</button></div>`);
+}
+async function revisarTiempos() {
+  if (!S.ses) return;
+  try {
+    const r = await fetch('/auth/estado', { credentials: 'same-origin', cache: 'no-store' });
+    if (r.status === 401) { const j = await r.json().catch(() => ({})); expulsar(j.motivo); return; }
+    const j = await r.json();
+    if (j.restanteSeg <= j.avisoSeg) mostrarAviso(j.restanteSeg);
+    else if ($('#avisoSeg')) { closeM(); finAviso = 0; }
+  } catch { /* se reintenta */ }
+}
+setInterval(enviarActividad, 8000);
+setInterval(revisarTiempos, 4000);
+setInterval(() => { const t = $('#avisoSeg'); if (t && finAviso) t.textContent = Math.max(0, Math.ceil((finAviso - Date.now()) / 1000)); }, 500);
 
 arrancar();

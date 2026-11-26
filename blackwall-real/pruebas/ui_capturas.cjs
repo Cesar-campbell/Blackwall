@@ -54,6 +54,18 @@ const esperar = ms => new Promise(r => setTimeout(r, ms));
 
   for (const v of vistas) {
     if (['login', 'keycloak'].includes(v)) continue;
+    if (v === 'config-rol') {   // elige el rol Analista, cambia sus ciclos y guarda: prueba el formulario real
+      await pag.evaluate(() => { location.hash = 'config'; }); await esperar(1200);
+      await pag.select('#cRol', 'ROL_ANALISTA'); await esperar(300);
+      const antes = await pag.$eval('#cC', e => e.value);
+      await pag.$eval('#cC', e => { e.value = ''; }); await pag.type('#cC', '8');
+      await pag.click('[data-a="guardarcfg"]'); await esperar(1500);
+      console.log(`analista: ciclos ${antes} → 8; aviso en pantalla: ${await pag.$eval('#toast', e => e.textContent)}`);
+      await pag.$eval('#cC', e => { e.value = ''; }); await pag.type('#cC', antes);   // se deja como estaba
+      await pag.click('[data-a="guardarcfg"]'); await esperar(1500);
+      await foto('config-rol'); continue;
+    }
+    if (v === 'aviso') { await esperar(11000); await foto('aviso'); continue; }   // sin mover el ratón: aparece el aviso de inactividad
     if (v === 'denegado') { await pag.evaluate(() => { location.hash = 'config'; }); }
     else if (v === 'caso' || v === 'usuario-nuevo') { /* modales: se abren desde su lista */ }
     else await pag.evaluate(x => { location.hash = x; }, v);

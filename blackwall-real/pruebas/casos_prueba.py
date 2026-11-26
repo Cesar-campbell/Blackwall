@@ -504,6 +504,103 @@ def cp27(c):
         f"corta→{'rechazada' if not corta else 'ACEPTADA'} ({m_corta}); 2 cambios válidos={ok1 and ok2}; reutilizar anterior→{'rechazada' if not reuso1 else 'ACEPTADA'} ({m_reuso}); reutilizar la original→{'rechazada' if not reuso0 else 'ACEPTADA'}; repetir la actual→{'rechazada' if not misma else 'ACEPTADA'}; clave nueva→{'aceptada' if nueva else 'RECHAZADA'}"
 
 
+def _cfg(c, cambios=None):
+    """Lee la configuración como administrador; con `cambios` {rol: {...}} la modifica y devuelve la original."""
+    adm = c["tok"]["admin"]
+    st, actual = api("GET", "/api/config", adm)
+    if cambios is None:
+        return actual
+    nueva = json.loads(json.dumps(actual))
+    for rol, v in cambios.items():
+        nueva["roles"][rol].update(v)
+    st2, r = api("PUT", "/api/config", adm, nueva)
+    if st2 != 200:
+        raise RuntimeError(f"no se pudo cambiar la configuración: {st2} {r}")
+    return actual
+
+
+def _restaurar(c, original):
+    api("PUT", "/api/config", c["tok"]["admin"], original)
+
+
+@caso("CP-28", "Inactividad por rol: cierra al usuario y no al analista", "ROL_USUARIO / ROL_ANALISTA", "Sin actividad más que el límite de su rol",
+      "Con actividad la sesión sigue; sin actividad el usuario recibe 401 (inactividad) y queda en auditoría; el analista (límite mayor) sigue")
+def cp28(c):
+    original = _cfg(c, {"ROL_USUARIO": {"inactividadSeg": 30, "avisoSeg": 10}, "ROL_ANALISTA": {"inactividadSeg": 300, "avisoSeg": 30}})
+    try:
+        c["kc"].desbloquear("prueba.usuario")
+        t, _ = token_de("prueba.usuario")
+        vivo = []
+        for _ in range(3):                       # actividad cada 15 s: no debe cerrarse
+            vivo.append(api("GET", "/api/casos", t)[0])
+            time.sleep(15)
+        time.sleep(18)                           # 33 s sin actividad (límite 30 s)
+        st, b = api("GET", "/api/casos", t)
+        analista = api("GET", "/api/casos", c["tok"]["analista"])[0]
+        st_a, aud = api("GET", "/api/auditoria", c["tok"]["admin"])
+        evento = any(a["ev"] == "SESION_EXPIRADA" and a["u"] == "prueba.usuario" for a in aud) if st_a == 200 else False
+    finally:
+        _restaurar(c, original)
+    return vivo == [200, 200, 200] and st == 401 and b.get("motivo") == "inactividad" and analista == 200 and evento, \
+        f"con actividad={vivo}; tras 33 s sin actividad → {st} (motivo={b.get('motivo')}); analista (límite 300 s)={analista}; evento SESION_EXPIRADA en auditoría={evento}"
+
+
+@caso("CP-29", "Las consultas automáticas no cuentan como actividad", "ROL_USUARIO", "Peticiones con X-Auto: 1 durante el límite",
+      "La sesión se cierra aunque sigan llegando consultas automáticas; una petición real (sin X-Auto) sí la mantiene")
+def cp29(c):
+    original = _cfg(c, {"ROL_USUARIO": {"inactividadSeg": 30, "avisoSeg": 10}})
+    try:
+        c["kc"].desbloquear("prueba.usuario2")
+        t, _ = token_de("prueba.usuario2")
+        api("GET", "/api/casos", t)              # actividad real en t=0
+        auto = []
+        for _ in range(3):
+            time.sleep(10)
+            auto.append(api("GET", "/api/estadisticas", t, None, {"X-Auto": "1"})[0])
+        time.sleep(5)                            # 35 s desde la última actividad real
+        st, b = api("GET", "/api/estadisticas", t, None, {"X-Auto": "1"})
+    finally:
+        _restaurar(c, original)
+    return auto == [200, 200, 200] and st == 401 and b.get("motivo") == "inactividad", \
+        f"consultas automáticas dentro del límite={auto}; a los 35 s (sin actividad real) → {st} ({b.get('motivo')})"
+
+
+@caso("CP-30", "Ciclos agotados: hay que volver a iniciar sesión", "ROL_USUARIO", "Renovar el acceso más veces que el máximo de ciclos",
+      "La renovación que excede el máximo da 401 (ciclos); el token anterior deja de servir al instante")
+def cp30(c):
+    original = _cfg(c, {"ROL_USUARIO": {"maxCiclos": 1}})
+    try:
+        c["kc"].desbloquear("prueba.invitado")
+        r = o.login("prueba.usuario2", CLAVE, app=True)
+        st0, ses = o.sesion_app(r)
+        tok0 = ses["access_token"]
+        antes = api("GET", "/api/yo", tok0)[0]
+        ren1 = r["nav"].pedir(o.APP + "/auth/sesion?renovar=1")[0]       # ciclo 1 de 1: permitido
+        ren2 = r["nav"].pedir(o.APP + "/auth/sesion?renovar=1")           # ciclo 2: excede el máximo
+        motivo = json.loads(ren2[1]).get("motivo") if ren2[1].startswith("{") else None
+        despues = api("GET", "/api/yo", tok0)                              # el token viejo aún no vence, pero la sesión está cerrada
+    finally:
+        _restaurar(c, original)
+    return antes == 200 and ren1 == 200 and ren2[0] == 401 and motivo == "ciclos" and despues[0] == 401, \
+        f"token antes={antes}; 1.ª renovación={ren1}; 2.ª renovación={ren2[0]} (motivo={motivo}); el token anterior después → {despues[0]} (cierre inmediato)"
+
+
+@caso("CP-31", "Configuración: validaciones y solo el administrador", "ROL_ADMIN / otros", "GET/PUT /api/config",
+      "El admin ve la política de los 5 roles; valores fuera de rango → 400; los demás roles → 403")
+def cp31(c):
+    adm, cfg = c["tok"]["admin"], _cfg(c)
+    cinco = sorted(cfg["roles"]) == sorted(["ROL_ADMIN", "ROL_ANALISTA", "ROL_AUDITOR", "ROL_USUARIO", "ROL_INVITADO"])
+
+    def probar(cambio):
+        mal = json.loads(json.dumps(cfg))
+        mal["roles"]["ROL_USUARIO"].update(cambio)
+        return api("PUT", "/api/config", adm, mal)[0]
+    corta, aviso, ciclos = probar({"inactividadSeg": 10}), probar({"inactividadSeg": 60, "avisoSeg": 60}), probar({"maxCiclos": 0})
+    otros = [api("GET", "/api/config", c["tok"][k])[0] for k in ("analista", "auditor", "usuario", "invitado")]
+    return cinco and (corta, aviso, ciclos) == (400, 400, 400) and otros == [403, 403, 403, 403], \
+        f"política de los 5 roles={cinco}; inactividad de 10 s→{corta}; aviso ≥ inactividad→{aviso}; 0 ciclos→{ciclos}; analista/auditor/usuario/invitado→{otros}"
+
+
 # ----------------------------------------------------------------------------- ejecución
 def main():
     inicio = datetime.now()

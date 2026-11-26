@@ -1,6 +1,6 @@
-Captura del login por HTTPS: /var/www/html/Desarrollo-Web-UTP/zerotrust-facil/proyecto-final/blackwall-real/evidencias/login-https.pcap  (46953 bytes)
-Paquetes: 82
-Protocolo de aplicación observado:      46 TCP      32 TLSv1.3       4 TLSv1.2 
+Captura del login por HTTPS: /var/www/html/Desarrollo-Web-UTP/zerotrust-facil/proyecto-final/blackwall-real/evidencias/login-https.pcap  (47031 bytes)
+Paquetes: 83
+Protocolo de aplicación observado:      47 TCP      32 TLSv1.3       4 TLSv1.2 
 Versión TLS negociada: 0x0303 
 Suite de cifrado: 0x1302 
 
