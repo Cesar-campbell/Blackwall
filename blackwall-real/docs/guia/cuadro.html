@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Blackwall · Cumplimiento</title>
+<style>
+@font-face{font-family:"Inter";font-weight:400;src:url(../../app/public/assets/fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;src:url(../../app/public/assets/fonts/inter-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:700;src:url(../../app/public/assets/fonts/inter-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:800;src:url(../../app/public/assets/fonts/inter-latin-800-normal.woff2) format("woff2")}
+:root{--azul:#003366;--azul2:#0a4d8c;--soft:#e8f0f9;--ink:#18222e;--mut:#5d6878;--line:#dbe2ea;--ok:#16803c;--okc:#e6f6ec;--al:#b45309;--alc:#fff4e2;--alt:#0a4d8c;--altc:#e8f0f9}
+*{box-sizing:border-box}
+body{margin:0;width:1700px;background:#f1f4f8;font:15px/1.4 Inter,sans-serif;color:var(--ink);padding:0 0 28px}
+header{background:linear-gradient(160deg,#002a55,#0a4d8c);color:#fff;padding:30px 44px;display:flex;align-items:center;gap:22px}
+header h1{margin:0;font-size:30px;letter-spacing:-.02em;font-weight:800}
+header p{margin:4px 0 0;opacity:.85;font-size:15px}
+.cuerpo{padding:22px 44px 0}
+h2{font-size:19px;color:var(--azul);margin:26px 0 10px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+h2 .n{background:var(--azul);color:#fff;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:14px}
+table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 1px 2px #10223c0f}
+th{background:var(--azul);color:#fff;text-align:left;font-size:12px;letter-spacing:.07em;text-transform:uppercase;padding:11px 14px}
+td{padding:10px 14px;border-top:1px solid var(--line);vertical-align:middle;font-size:14px}
+tr:nth-child(even) td{background:#f8fafc}
+td b{color:var(--azul)}
+.peso{color:var(--mut);font-weight:600;font-size:12px}
+.p{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;font-weight:700;font-size:13px;white-space:nowrap}
+.ok{background:var(--okc);color:var(--ok)}.al{background:var(--alc);color:var(--al)}.alt{background:var(--altc);color:var(--alt)}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.res{display:flex;gap:14px;margin:6px 0 0}
+.k{flex:1;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;box-shadow:0 1px 2px #10223c0f}
+.k b{display:block;font-size:30px;color:var(--azul);letter-spacing:-.02em}.k span{color:var(--mut);font-size:13px}
+.leyenda{margin-top:18px;background:#fff;border:1px solid var(--line);border-left:6px solid var(--al);border-radius:10px;padding:14px 18px;font-size:14px}
+.leyenda b{color:var(--al)}
+.pie{margin-top:14px;color:var(--mut);font-size:12.5px;text-align:center}
+code{font:600 12.5px ui-monospace,monospace;background:var(--soft);padding:1px 6px;border-radius:4px;color:#0a3a6b}
+</style></head><body>
+<header>
+<svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="#e8f0f9" stroke-width="5" stroke-dasharray="42 12.45" transform="rotate(-80 32 32)"/><circle cx="32" cy="32" r="16" fill="#0a4d8c"/><path d="M26.5 31v-3.5a5.5 5.5 0 0 1 11 0V31" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><rect x="23.5" y="30.5" width="17" height="13" rx="2.5" fill="#fff"/><circle cx="32" cy="36" r="2" fill="#0a4d8c"/><rect x="31.2" y="37" width="1.6" height="3.6" rx=".6" fill="#0a4d8c"/></svg>
+<div><h1>Blackwall · ¿Cumplimos lo que pidió la profesora?</h1><p>Proyecto final de Ciberseguridad II · Seguridad en accesos: identificación, autenticación y autorización · Rúbrica, requisitos y herramientas</p></div>
+</header>
+<div class="cuerpo">
+
+<div class="res">
+<div class="k"><b>6 de 7</b><span>criterios de la rúbrica cumplidos (falta el informe)</span></div>
+<div class="k"><b>8 de 8</b><span>requisitos obligatorios de autenticación (7.2)</span></div>
+<div class="k"><b>31 de 31</b><span>pruebas pasan (se pedían mínimo 10)</span></div>
+<div class="k"><b>0 / 0</b><span>alertas medias y bajas en ZAP (antes: 2 y 4)</span></div>
+</div>
+
+<h2><span class="n">1</span>Rúbrica de evaluación (sección 12)</h2>
+<table>
+<tr><th style="width:23%">Criterio</th><th style="width:7%">Peso</th><th style="width:11%">Estado</th><th>Cómo lo cumplimos (en corto)</th></tr>
+<tr><td><b>Identificación y nomenclatura</b></td><td class="peso">15%</td><td><span class="p ok">✔ Cumple</span></td><td>Todo con el formato de la guía: <code>apellido.nombre</code>, <code>GRP_*</code>, <code>ROL_*</code>, <code>cli-app-entorno</code>, <code>recurso:acción</code>; homónimos con número.</td></tr>
+<tr><td><b>Autenticación OAuth 2.0 / OIDC</b></td><td class="peso">25%</td><td><span class="p ok">✔ Cumple</span></td><td>Authorization Code + PKCE; valida ID token y access token (iss, aud, exp, nonce, firma); MFA TOTP; HTTPS; logout que revoca.</td></tr>
+<tr><td><b>Integración con el directorio</b></td><td class="peso">15%</td><td><span class="p ok">✔ Cumple</span></td><td>OpenLDAP es la fuente única de usuarios y grupos; el grupo se convierte solo en rol; política de contraseñas en el directorio.</td></tr>
+<tr><td><b>Autorización: matriz y aplicación</b></td><td class="peso">20%</td><td><span class="p ok">✔ Cumple</span></td><td>Matriz por rol aplicada en el servidor, mínimo privilegio, denegar por defecto, control por propiedad (<code>sub</code>), justificación por rol.</td></tr>
+<tr><td><b>Pruebas de seguridad y evidencias</b></td><td class="peso">10%</td><td><span class="p ok">✔ Cumple</span></td><td>31 casos positivos y negativos con evidencia; ZAP antes y después con hallazgos corregidos; captura de red sin claves en claro.</td></tr>
+<tr><td><b>Justificación de herramientas</b></td><td class="peso">5%</td><td><span class="p ok">✔ Cumple</span></td><td>Tabla con licencia, costo, compatibilidad, alternativas y fuente (ver abajo y en las guías).</td></tr>
+<tr><td><b>Informe completo</b></td><td class="peso">10%</td><td><span class="p al">⏳ Pendiente</span></td><td>Lo redacta la compañera con la guía. Debe <b>declarar el uso de IA</b> (lo exige la guía) y llevar el enlace al repositorio.</td></tr>
+<tr><td><b>Sustentación (30 min + 5)</b></td><td class="peso">aparte</td><td><span class="p ok">✔ Lista</span></td><td>Demo en vivo funcionando: login con cada rol, intento denegado, auditoría. Fecha: <b>7 de diciembre</b>.</td></tr>
+</table>
+
+<div class="dos">
+<div>
+<h2><span class="n">2</span>Requisitos obligatorios (sección 7.2)</h2>
+<table>
+<tr><th>Requisito</th><th style="width:22%">Estado</th></tr>
+<tr><td>HTTPS en todos los componentes</td><td><span class="p ok">✔ Cumple</span></td></tr>
+<tr><td><code>redirect_uri</code> exacta; sin Implicit ni Password</td><td><span class="p ok">✔ Cumple</span></td></tr>
+<tr><td>Access token 5–15 min; refresh con rotación</td><td><span class="p ok">✔ Cumple</span></td></tr>
+<tr><td>Contraseñas: 12+, sin repetir 5, bloqueo a los 5 fallos</td><td><span class="p ok">✔ Cumple</span></td></tr>
+<tr><td>TOTP obligatorio para ADMIN y AUDITOR</td><td><span class="p ok">✔ Cumple</span></td></tr>
+<tr><td>Secretos fuera del código</td><td><span class="p ok">✔ Cumple</span></td></tr>
+<tr><td>Logout que revoca en IdP y en la app</td><td><span class="p ok">✔ Cumple</span></td></tr>
+<tr><td>Diagramar y documentar la autenticación</td><td><span class="p ok">✔ Cumple</span></td></tr>
+</table>
+</div>
+<div>
+<h2><span class="n">3</span>Entregables (sección 10)</h2>
+<table>
+<tr><th>Entregable</th><th style="width:22%">Estado</th></tr>
+<tr><td><b>E1</b> Documento de diseño</td><td><span class="p ok">✔ En las guías</span></td></tr>
+<tr><td><b>E2</b> Evidencia de directorio e IdP</td><td><span class="p ok">✔ Cumple</span></td></tr>
+<tr><td><b>E3</b> Evidencias de autenticación</td><td><span class="p ok">✔ Cumple</span></td></tr>
+<tr><td><b>E4</b> Código y matriz de roles</td><td><span class="p ok">✔ En GitHub</span></td></tr>
+<tr><td><b>E5</b> Tabla de pruebas con evidencias</td><td><span class="p ok">✔ Cumple</span></td></tr>
+<tr><td><b>E6</b> Informe (PDF) y presentación</td><td><span class="p al">⏳ Pendiente</span></td></tr>
+<tr><td>Registro del equipo y enlace al repositorio</td><td><span class="p ok">✔ GitHub</span></td></tr>
+<tr><td>Más allá de lo pedido</td><td><span class="p alt">★ Sitio público</span></td></tr>
+</table>
+</div>
+</div>
+
+<h2><span class="n">4</span>Herramientas: las que pidió la guía y las que usamos</h2>
+<table>
+<tr><th style="width:17%">Herramienta (guía 5.1)</th><th style="width:13%">¿La usamos?</th><th style="width:12%">¿Es válida?</th><th>Justificación corta (licencia · costo · por qué)</th></tr>
+<tr><td><b>Keycloak 26.x</b></td><td><span class="p ok">✔ Sí (26.8)</span></td><td><span class="p ok">Sí</span></td><td>Apache 2.0, gratis. Proveedor de identidad de referencia: OIDC, OAuth 2.0, TOTP y federación LDAP; corre en contenedor.</td></tr>
+<tr><td><b>Directorio: Samba AD / AD DS / OpenLDAP</b></td><td><span class="p alt">✔ OpenLDAP</span></td><td><span class="p ok">Sí</span></td><td>OpenLDAP Public License, gratis. La guía lo admite expresamente como alternativa; liviano y se federa con Keycloak por LDAPS.</td></tr>
+<tr><td><b>Apache Directory Studio</b></td><td><span class="p al">✘ No</span></td><td><span class="p ok">Opcional</span></td><td>Es solo un cliente gráfico; lo reemplazamos por comandos <code>ldapsearch</code>/<code>ldapmodify</code> (documentados con capturas).</td></tr>
+<tr><td><b>Python + Flask + Authlib</b></td><td><span class="p alt">✔ PHP 8.3</span></td><td><span class="p ok">Sí</span></td><td>PHP/Apache License, gratis. La guía lo da como “ejemplo”; es el stack del curso, código corto y auditable, con <code>firebase/php-jwt</code> (BSD-3) para validar firmas.</td></tr>
+<tr><td><b>Docker Engine o Podman</b></td><td><span class="p ok">✔ Docker 29</span></td><td><span class="p ok">Sí</span></td><td>Apache 2.0, gratis en Linux. Un comando levanta los 5 servicios idénticos en cualquier equipo.</td></tr>
+<tr><td><b>OpenSSL o mkcert</b></td><td><span class="p ok">✔ OpenSSL</span></td><td><span class="p ok">Sí</span></td><td>Apache 2.0, gratis. CA propia y certificados para app, Keycloak, LDAPS y base de datos: HTTPS en todo.</td></tr>
+<tr><td><b>Postman o Bruno</b></td><td><span class="p alt">✔ Python</span></td><td><span class="p ok">Sí</span></td><td>PSF, gratis. Un cliente propio hace el login real (PKCE + TOTP) y ejecuta los 31 casos; es repetible con un solo comando.</td></tr>
+<tr><td><b>OWASP ZAP</b></td><td><span class="p ok">✔ Sí (2.17)</span></td><td><span class="p ok">Sí</span></td><td>Apache 2.0, gratis. Escaneo pasivo y activo, antes y después: de 2 medias y 4 bajas a 0 y 0.</td></tr>
+<tr><td><b>Wireshark</b></td><td><span class="p alt">✔ tcpdump + tshark</span></td><td><span class="p ok">Sí</span></td><td>BSD / GPLv2, gratis. tshark es Wireshark en consola (mismos analizadores); los <code>.pcap</code> abren en Wireshark. Resultado: 0 claves en claro.</td></tr>
+<tr><td><b>Git y GitHub</b></td><td><span class="p ok">✔ Sí</span></td><td><span class="p ok">Sí</span></td><td>Gratis. Repositorio <code>Cesar-campbell/Blackwall</code> con el código, las guías y las evidencias; sin secretos.</td></tr>
+<tr><td><b>Otras que usamos</b></td><td><span class="p ok">✔ Sí</span></td><td><span class="p ok">Sí</span></td><td>PostgreSQL 16 y SQLite (datos), Caddy (proxy), Tailscale Funnel (enlace público fijo): todas con licencia libre o plan gratuito.</td></tr>
+</table>
+
+<div class="leyenda"><b>Pendiente antes de entregar:</b> (1) el <b>informe en PDF</b> con la estructura de la sección 14, la <b>declaración del uso de IA</b> y el enlace al repositorio; (2) que <b>campbell.cesar</b> y <b>galvez.angel</b> configuren su MFA con su celular; (3) dar a cada compañero su contraseña individual. <b>Límite a declarar:</b> la imagen de OpenLDAP (<code>bitnamilegacy</code>) ya no recibe actualizaciones; sirve para el laboratorio.</div>
+<div class="pie">✔ Cumple · ⏳ Pendiente · “✔ Alternativa” = herramienta distinta a la sugerida pero permitida si se justifica (guía 5.1) · Datos al 25 de noviembre de 2026</div>
+</div>
+</body></html>
