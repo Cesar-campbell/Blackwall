@@ -11,6 +11,7 @@ sys.path.insert(0, AQUI)
 from base import CSS, img, img_ev, nota, tabla, term  # noqa: E402
 from s1 import ARQ  # noqa: E402
 from s2 import secuencia  # noqa: E402
+from diagramas import cadena, ciclos, decision  # noqa: E402
 
 DOCS = os.path.dirname(AQUI)
 RAIZ = os.path.dirname(DOCS)
@@ -159,6 +160,7 @@ sec("9c", "La aplicación por pantallas (otros roles)", f"""
 
 # 10 ---------------------------------------------------------------------------------------------
 sec("10", "Matriz de roles y permisos", f"""
+{cadena()}
 {tabla(["Recurso", "ADMIN", "ANALISTA", "AUDITOR", "USUARIO", "INVITADO"], [
     ["Usuarios", "CRUD", "R", "R", "—", "—"],
     ["Casos", "CRUD", "CRU", "R", "CR propios", "—"],
@@ -174,6 +176,7 @@ sec("10", "Matriz de roles y permisos", f"""
     ["USUARIO", "Control por propiedad: solo accede a registros cuyo <code>sub</code> es el suyo"],
     ["INVITADO", "Acceso mínimo, sin datos internos"],
 ], anchos=["14%", "86%"])}
+<div style="width:64%;margin:0 auto">{decision()}</div>
 {nota("<b>Dos reglas clave:</b> (1) <i>denegar por defecto</i>: ruta no declarada → 404, sin el permiso → 403; (2) la API <b>nunca confía</b> en el rol que muestre la interfaz: lo lee del token firmado.", "ok")}
 {tabla(["Endpoint", "Permiso", "Respuestas"], [
     ["<code>GET · POST /api/casos</code>", "<code>casos:leer</code> o <code>leer_propios</code> · <code>crear</code>", "200/201 · 403"],
@@ -194,6 +197,7 @@ sec("11", "Sesión por ciclos e inactividad (por rol)", f"""
     ["<b>Aviso previo</b>", "Segundos antes de cerrar en que aparece “¿Sigues ahí?” con <b>Seguir conectado</b>", "Por rol"],
     ["Intentos fallidos y bloqueo", "Los controla Keycloak para todo el sistema", "General"],
 ], anchos=["24%", "62%", "14%"])}
+{ciclos()}
 {img_ev("admin-config-rol.png", "Configuración (solo el administrador): se elige el rol y se ven y cambian sus valores", [(57.5, 28.5, "Duración de cada ciclo, igual para todos."), (57.5, 37, "Intentos fallidos y bloqueo (también generales)."), (97.5, 28.4, "<b>Desplegable de roles</b>: al elegir uno se cargan sus valores actuales."), (97.5, 37, "Ciclos máximos del rol."), (97.5, 46, "Inactividad máxima, en minutos y segundos."), (97.5, 59, "Sesión máxima resultante (ciclos × duración).")], "84%")}
 {img_ev("usuario-aviso.png", "Aviso antes de cerrar la sesión por inactividad", [(71, 45, "Cuenta regresiva hasta el cierre."), (47, 54, "<b>Seguir conectado</b> cuenta como actividad.")], "70%")}
 <ul><li><b>Quién decide es el servidor:</b> guarda la última actividad real de cada sesión; las consultas automáticas de la pantalla no cuentan.</li><li><b>Cierre inmediato:</b> una sesión cerrada deja de servir aunque su token no haya vencido.</li><li>Cada cierre queda en la auditoría como <code>SESION_EXPIRADA</code>. Pruebas: CP-28 a CP-31.</li><li>Solo el rol con el permiso <code>config:admin</code> (el administrador) ve y cambia esta pantalla.</li></ul>

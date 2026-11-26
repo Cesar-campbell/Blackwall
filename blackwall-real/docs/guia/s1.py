@@ -1,31 +1,6 @@
 from base import c, duo, img, img_ev, nota, tabla, term
 
-ARQ = """<svg viewBox="0 0 760 330" width="100%" role="img" aria-label="Arquitectura">
-<defs><marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0a4d8c"/></marker></defs>
-<g font-size="11" fill="#18222e">
-<rect x="8" y="125" width="120" height="70" rx="9" fill="#e8f0f9" stroke="#0a4d8c"/><text x="68" y="154" text-anchor="middle" font-weight="700">Navegador</text><text x="68" y="172" text-anchor="middle" font-size="9" fill="#5d6878">Chromium / Firefox</text>
-<rect x="215" y="125" width="165" height="70" rx="9" fill="#003366"/><text x="297" y="150" text-anchor="middle" fill="#fff" font-weight="700">Aplicación Blackwall</text><text x="297" y="166" text-anchor="middle" fill="#cfe0f2" font-size="9">Apache + PHP 8.3 · API /api/*</text><text x="297" y="181" text-anchor="middle" fill="#cfe0f2" font-size="9">app.localhost:8444 (HTTPS)</text>
-<rect x="215" y="250" width="165" height="55" rx="9" fill="#f6f9fc" stroke="#9db4cf"/><text x="297" y="274" text-anchor="middle" font-weight="700">SQLite</text><text x="297" y="291" text-anchor="middle" font-size="9" fill="#5d6878">casos · comentarios · auditoría</text>
-<rect x="470" y="18" width="165" height="70" rx="9" fill="#0a4d8c"/><text x="552" y="44" text-anchor="middle" fill="#fff" font-weight="700">Keycloak 26.8</text><text x="552" y="60" text-anchor="middle" fill="#cfe0f2" font-size="9">Proveedor de identidad · OIDC · TOTP</text><text x="552" y="75" text-anchor="middle" fill="#cfe0f2" font-size="9">acceso.localhost:8443 (HTTPS)</text>
-<rect x="470" y="232" width="165" height="70" rx="9" fill="#e8f0f9" stroke="#0a4d8c"/><text x="552" y="258" text-anchor="middle" font-weight="700">OpenLDAP 2.6</text><text x="552" y="274" text-anchor="middle" font-size="9" fill="#5d6878">Directorio · usuarios · grupos · ppolicy</text><text x="552" y="289" text-anchor="middle" font-size="9" fill="#5d6878">ldap:1636 (LDAPS)</text>
-<rect x="660" y="18" width="92" height="70" rx="9" fill="#f6f9fc" stroke="#9db4cf"/><text x="706" y="48" text-anchor="middle" font-weight="700">PostgreSQL</text><text x="706" y="64" text-anchor="middle" font-size="9" fill="#5d6878">datos de Keycloak</text>
-</g>
-<g stroke="#0a4d8c" stroke-width="1.6" fill="none" marker-end="url(#f)">
-<path d="M130 160H213" marker-start="url(#f)"/>
-<path d="M68 125V53H468" marker-start="url(#f)"/>
-<path d="M380 140L468 66" marker-start="url(#f)"/>
-<path d="M380 182L468 252" marker-start="url(#f)"/>
-<path d="M552 90V230" marker-start="url(#f)"/>
-<path d="M637 53H658" marker-start="url(#f)"/>
-<path d="M297 197V248"/>
-</g>
-<g font-size="9" fill="#0a4d8c" font-weight="600">
-<text x="171" y="152" text-anchor="middle">HTTPS</text>
-<text x="260" y="45" text-anchor="middle">HTTPS · inicio de sesión</text>
-<text x="404" y="96" text-anchor="middle" transform="rotate(-40 404 96)">token · JWKS</text>
-<text x="412" y="205" text-anchor="middle" transform="rotate(38 412 205)">LDAPS · altas/bajas</text>
-<text x="560" y="164" text-anchor="start">LDAPS · contraseña y grupos</text>
-</g></svg>"""
+from diagramas import ARQ  # noqa: E402
 
 
 def secciones():

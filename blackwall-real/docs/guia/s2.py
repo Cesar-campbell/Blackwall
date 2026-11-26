@@ -1,40 +1,7 @@
 from base import duo, img, img_ev, nota, tabla, term
 
 
-def secuencia():
-    cols = {"Navegador": 70, "Aplicación": 270, "Keycloak": 480, "Directorio": 680}
-    msgs = [
-        ("Navegador", "Aplicación", "1  Abre la app (sin sesión)"),
-        ("Aplicación", "Navegador", "2  Redirige a Keycloak: code_challenge, state, nonce"),
-        ("Navegador", "Keycloak", "3  Pide la pantalla de acceso"),
-        ("Navegador", "Keycloak", "4  Envía usuario y contraseña"),
-        ("Keycloak", "Directorio", "5  ¿Es correcta la contraseña? (LDAPS)"),
-        ("Keycloak", "Navegador", "6  Pide el código TOTP (admin y auditor)"),
-        ("Navegador", "Keycloak", "7  Envía el código de 6 dígitos"),
-        ("Keycloak", "Navegador", "8  Redirige a /callback con code + state"),
-        ("Navegador", "Aplicación", "9  Entrega code + state a la app"),
-        ("Aplicación", "Keycloak", "10  POST /token: code + code_verifier"),
-        ("Keycloak", "Aplicación", "11  ID token + access token + refresh token"),
-        ("Aplicación", "Aplicación", "12  Valida firma, iss, aud, exp y nonce"),
-        ("Aplicación", "Navegador", "13  Cookie de sesión: entra a la app"),
-    ]
-    h = 58 + 27 * len(msgs)
-    o = [f'<svg viewBox="0 0 760 {h}" width="100%" role="img" aria-label="Secuencia de inicio de sesión"><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#0a4d8c"/></marker></defs>']
-    for n, x in cols.items():
-        o.append(f'<rect x="{x-50}" y="4" width="100" height="26" rx="6" fill="#003366"/><text x="{x}" y="22" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">{n}</text>')
-        o.append(f'<line x1="{x}" y1="30" x2="{x}" y2="{h-6}" stroke="#9db4cf" stroke-dasharray="4 3"/>')
-    y = 56
-    for a, b, t in msgs:
-        xa, xb = cols[a], cols[b]
-        if a == b:
-            o.append(f'<rect x="{xa+6}" y="{y-12}" width="190" height="18" rx="4" fill="#e6f6ec" stroke="#16803c"/><text x="{xa+12}" y="{y+1}" font-size="9.5" fill="#16803c" font-weight="600">{t}</text>')
-        else:
-            o.append(f'<line x1="{xa}" y1="{y}" x2="{xb + (-7 if xb > xa else 7)}" y2="{y}" stroke="#0a4d8c" stroke-width="1.5" marker-end="url(#a)"/>')
-            tx = (xa + xb) / 2
-            o.append(f'<text x="{tx}" y="{y-5}" text-anchor="middle" font-size="9.5" fill="#18222e">{t}</text>')
-        y += 27
-    o.append("</svg>")
-    return "".join(o)
+from diagramas import secuencia  # noqa: E402
 
 
 def secciones():
