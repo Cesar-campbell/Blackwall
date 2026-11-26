@@ -11,6 +11,9 @@ EST="$BW_HOME/servidor"
 CF="$HOME/.local/bin/cloudflared"
 UNIT_DIR="$HOME/.config/systemd/user"
 UNIT="$UNIT_DIR/blackwall.service"
+TSB="$HOME/.local/bin/tailscaled"
+TSC="$HOME/.local/bin/tailscale"
+TSD="$HOME/.local/share/tailscale"
 PUERTO_PROXY=8091
 KC_LOCAL="https://localhost:8443/acceso"
 mkdir -p "$EST"
@@ -51,7 +54,7 @@ arrancar_local() {
 }
 
 arrancar_publico() {
-  [[ -x "$CF" ]] || { registrar "ERROR: falta cloudflared ($CF). Ejecuta: $0 instalar"; return 1; }
+  [[ -s "$EST/tailscale-url" ]] || [[ -x "$CF" ]] || { registrar "ERROR: falta cloudflared ($CF) o la configuración de Tailscale"; return 1; }
   # Servicios base y proxy (con una dirección provisional; se corrige abajo si cambia)
   local previa=""; [[ -f "$EST/url-aplicada" ]] && previa="$(cat "$EST/url-aplicada")"
   dc_publico "${previa:-https://pendiente.invalid}" up -d ldap db >/dev/null 2>&1
@@ -59,7 +62,15 @@ arrancar_publico() {
   # Túnel: dirección fija si existe, si no una temporal de Cloudflare
   local url="" log="$EST/tunel.log"
   : > "$log"
-  if [[ -s "$SRV/tunel-fijo.env" ]]; then
+  if [[ -s "$EST/tailscale-url" && -x "$TSB" ]]; then
+    # Dirección FIJA y gratuita con Tailscale Funnel (sin dominio propio)
+    url="$(cat "$EST/tailscale-url")"
+    pkill -x tailscaled 2>/dev/null || true; sleep 1
+    "$TSB" --tun=userspace-networking --state="$TSD/estado" --socket="$TSD/ts.sock" >"$log" 2>&1 &
+    local j
+    for j in $(seq 1 30); do "$TSC" --socket="$TSD/ts.sock" status --json 2>/dev/null | grep -q '"Running"' && break; sleep 2; done
+    "$TSC" --socket="$TSD/ts.sock" funnel --bg "$PUERTO_PROXY" >>"$log" 2>&1
+  elif [[ -s "$SRV/tunel-fijo.env" ]]; then
     # shellcheck disable=SC1091
     source "$SRV/tunel-fijo.env"   # define TUNEL_TOKEN y URL_FIJA (túnel con nombre, dominio propio)
     "$CF" tunnel --no-autoupdate run --token "$TUNEL_TOKEN" >"$log" 2>&1 &
@@ -168,7 +179,7 @@ Esto APAGA y BORRA todo lo de Blackwall en este equipo:
   - el servicio de arranque automático y el túnel
   - los contenedores, volúmenes (usuarios, casos, auditoría) y la imagen de la app
   - los secretos y certificados en $BW_HOME
-  - el programa cloudflared ($CF)
+  - los programas del túnel (cloudflared y tailscale) y la sesión de Tailscale
 (El código del proyecto y los PDF NO se borran.)
 Para confirmar: $0 eliminar --si
 EOF
@@ -183,6 +194,9 @@ EOF
   docker network rm blackwall_bw >/dev/null 2>&1 || true
   if [[ -n "$BW_HOME" && "$BW_HOME" == "$HOME/.local/share/blackwall" ]]; then rm -rf -- "$BW_HOME"; fi
   rm -f -- "$CF"
+  pkill -x tailscaled 2>/dev/null || true
+  if [[ "$TSD" == "$HOME/.local/share/tailscale" ]]; then rm -rf -- "$TSD" "$HOME/.local/share/tailscale-pkg"; fi
+  rm -f -- "$TSB" "$TSC"
   loginctl disable-linger "$USER" 2>/dev/null || true
   echo "Todo lo de Blackwall fue apagado y eliminado de este equipo."
 }

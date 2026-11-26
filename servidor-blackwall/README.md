@@ -33,11 +33,11 @@ Compañero (su casa)  ──HTTPS──►  Cloudflare  ──túnel──►  t
 
 ## Importante
 
-- **El enlace cambia** cada vez que el túnel se reinicia (al encender la laptop, o si se cae internet un rato). Se obtiene siempre con `./servidor.sh enlace`. Para un enlace **fijo** hace falta un dominio: se crea un túnel con nombre en Cloudflare y se guardan `TUNEL_TOKEN` y `URL_FIJA` en `tunel-fijo.env` (el script lo usa solo).
+- **Enlace fijo y gratis (Tailscale Funnel):** si existe el archivo `~/.local/share/blackwall/servidor/tailscale-url` (con la dirección `https://<equipo>.<red>.ts.net`), el servidor usa esa dirección y no cambia nunca. Se configura una vez: instalar `tailscaled`/`tailscale` en `~/.local/bin`, iniciar sesión (`tailscale up --hostname=blackwall`), activar **HTTPS Certificates** en la consola de Tailscale y **Funnel**, y guardar la dirección en ese archivo. Sin ese archivo se usa un túnel temporal de Cloudflare, cuyo enlace **cambia** en cada reinicio. Con dominio propio también se puede un túnel con nombre de Cloudflare (`tunel-fijo.env` con `TUNEL_TOKEN` y `URL_FIJA`).
 - Mientras el enlace esté activo, **cualquiera que lo tenga puede ver la pantalla de acceso**. Entre usuarios y contraseñas la seguridad la da la propia aplicación (bloqueo tras 5 intentos, MFA, etc.). Antes de compartirlo: entra con `campbell.cesar` y **configura su segundo factor** (si no, quien conozca la contraseña podría registrar el suyo).
 - Cada compañero necesita su cuenta: se crea en la pantalla **Usuarios** (formato `apellido.nombre`).
 - La laptop debe estar **encendida y con internet**. El servicio evita que se suspenda (también al cerrar la tapa).
-- Los túneles gratuitos de Cloudflare ("quick tunnels") son para pruebas y demostraciones; no tienen garantía de disponibilidad.
+- Los túneles gratuitos (Cloudflare "quick tunnels" y Tailscale Funnel) son para pruebas y demostraciones; no tienen garantía de disponibilidad. Al eliminar todo, quita también el dispositivo `blackwall` en la consola de Tailscale.
 
 ## Qué hay aquí
 
